@@ -2,6 +2,30 @@
 
 This project was created using the [Ktor Project Generator](https://start.ktor.io).
 
+## RAG pipeline is now doing the following successfully:
+
+✅ User sends a query in Postman
+
+⬇️
+
+✅ Ktor receives the request
+
+⬇️
+
+✅ FastAPI generates an embedding for the query
+
+⬇️
+
+✅ PostgreSQL returns all stored embeddings
+
+⬇️
+
+✅ Cosine similarity compares the query with every ticket
+
+⬇️
+
+✅ Top 5 most similar tickets are returned
+
 Here are some useful links to get you started:
 
 * [Ktor Documentation](https://ktor.io/docs/home.html)
