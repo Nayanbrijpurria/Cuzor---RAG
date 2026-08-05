@@ -1,0 +1,35 @@
+# Gradle
+.gradle/
+
+# Build output
+build/
+**/build/
+
+# IntelliJ
+.idea/
+*.iml
+
+# Kotlin
+.kotlin/
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Logs
+*.log
+
+# Environment
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+build_errors.txt
+build_output.txt
+
+embedding-service/model/model_int8.onnx
+
+server/src/main/resources/models/bge-m3/model_int8.onnx

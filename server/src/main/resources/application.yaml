@@ -1,0 +1,31 @@
+ktor:
+  application:
+    modules:
+      - com.cuzor.rag.ApplicationKt.module
+
+  deployment:
+    port: 8080
+
+database:
+  host: localhost
+  port: 5433
+  name: cuzor_rag
+  user: postgres
+  password: 140193
+
+csv:
+  path: 'C:\Users\ASUS\Downloads\live-tickets-june-2026-rag.csv'
+
+embedding:
+  model: BAAI/bge-m3
+
+logging:
+  level: INFO
+
+  model:
+
+    directory: models/bge-m3
+
+    embeddingDimension: 1024
+
+    normalizeEmbeddings: true
