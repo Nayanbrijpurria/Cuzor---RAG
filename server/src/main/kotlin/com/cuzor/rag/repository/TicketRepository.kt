@@ -121,5 +121,52 @@ object TicketRepository {
 
     }
 
+    fun findById(ticketId: String): Ticket? {
+
+        return transaction {
+
+            TicketTable
+                .selectAll()
+                .where { TicketTable.ticketId eq ticketId }
+                .map {
+
+                    Ticket(
+
+                        ticketId = it[TicketTable.ticketId],
+
+                        created = it[TicketTable.created],
+
+                        closedAt = it[TicketTable.closedAt],
+
+                        state = it[TicketTable.state],
+
+                        category = it[TicketTable.category],
+
+                        urgency = it[TicketTable.urgency],
+
+                        customerName = it[TicketTable.customerName],
+
+                        customerPhone = it[TicketTable.customerPhone],
+
+                        messageCount = it[TicketTable.messageCount],
+
+                        title = it[TicketTable.title],
+
+                        description = it[TicketTable.description],
+
+                        resolution = it[TicketTable.resolution],
+
+                        conversation = it[TicketTable.conversation]
+
+                    )
+
+                }
+
+                .firstOrNull()
+
+        }
+
+    }
+
     }
 
