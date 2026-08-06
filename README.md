@@ -2,34 +2,33 @@
 
 This project was created using the [Ktor Project Generator](https://start.ktor.io).
 
-Here are some useful links to get you started:
+## RAG pipeline is now doing the following successfully:
 
-* [Ktor Documentation](https://ktor.io/docs/home.html)
-* [Ktor GitHub page](https://github.com/ktorio/ktor)
-* [Ktor Slack chat](https://app.slack.com/client/T09229ZC6/C0A974TJ9). [Request an invite](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up).
+✅ User sends a query in Postman
 
-## Features
+⬇️
 
-Here's a list of features included in this project:
+✅ Ktor receives the request
 
-| Name                                                                                  | Description                                                                        |
-|---------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| [Content Negotiation](https://start.ktor.io/p/io.ktor/server-content-negotiation)     | Provides automatic content conversion according to Content-Type and Accept headers |
-| [Call Logging](https://start.ktor.io/p/io.ktor/server-call-logging)                   | Logs client requests                                                               |
-| [Status Pages](https://start.ktor.io/p/io.ktor/server-status-pages)                   | Provides exception handling for routes                                             |
-| [kotlinx.serialization](https://start.ktor.io/p/io.ktor/server-kotlinx-serialization) | Handles JSON serialization using kotlinx.serialization library                     |
-| [kotlinx.rpc](https://start.ktor.io/p/org.jetbrains/kotlinx-rpc)                      | Adds remote procedure call (RPC) routing                                           |
+⬇️
 
-## Structure
+✅ FastAPI generates an embedding for the query
 
-This project includes the following modules:
+⬇️
 
-| Path   | Description |
-|--------|-------------|
-|        | null        |
-| client | null        |
-| core   | null        |
-| server | null        |
+✅ PostgreSQL returns all stored embeddings
+
+⬇️
+
+✅ Cosine similarity compares the query with every ticket
+
+⬇️
+
+✅ Top 5 most similar tickets are returned
+
+## Design Decision: Embedding Service Architecture
+
+Initially, I started implementing the embedding pipeline in Kotlin using ONNX Runtime because our backend is built with Ktor. While working on the implementation, I realized that BGE-M3 requires several NLP-specific steps such as Hugging Face tokenization, ONNX inference, mean pooling, and vector normalization. The Hugging Face ecosystem and ONNX tooling are much more mature in Python than on the JVM. Instead of spending time maintaining complex AI inference code in Kotlin, I decided to keep the business backend in Kotlin and move only the embedding generation into a dedicated Python microservice. This keeps the main application in Kotlin while using Python only where it has a clear technical advantage.
 
 ## Building & Running
 
