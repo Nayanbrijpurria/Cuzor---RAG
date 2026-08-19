@@ -44,6 +44,7 @@ object EmbeddingClient {
                     EmbeddingRequest(text)
                 )
 
+
             }.body()
 
         return response.embedding.toFloatArray()

@@ -1,6 +1,7 @@
 package com.cuzor.rag.retrieval
 
 import com.cuzor.rag.embeddings.EmbeddingService
+import com.cuzor.rag.models.RetrievalResponse
 import com.cuzor.rag.models.RetrievedTicket
 import com.cuzor.rag.models.SearchResult
 import com.cuzor.rag.repository.EmbeddingRepository
@@ -11,7 +12,7 @@ class RetrievalService {
 
     private val embeddingService = EmbeddingService()
 
-    suspend fun retrieve(query: String): List<RetrievedTicket> {
+    suspend fun retrieve(query: String): RetrievalResponse {
 
         val queryEmbedding =
             embeddingService.createEmbedding(query)
@@ -43,23 +44,55 @@ class RetrievalService {
             )
         }
 
-        val topFive =
+        val highConfidenceResults =
             results
+                .filter { it.similarity > 0.75f }
                 .sortedByDescending { it.similarity }
-                .take(5)
 
-        println("Top Results")
+        val lowConfidenceResults =
+            results
+                .filter {
+                    it.similarity > 0.50f &&
+                            it.similarity <= 0.75f
+                }
+                .sortedByDescending { it.similarity }
 
-        topFive.forEach {
+        println("====================================")
+        println("HIGH CONFIDENCE RESULTS (> 0.75)")
+        println("====================================")
 
+        highConfidenceResults.forEach {
             println("${it.ticketId} -> ${it.similarity}")
-
         }
+
+        println("====================================")
+        println("LOW CONFIDENCE RESULTS (> 0.50 and <= 0.75)")
+        println("====================================")
+
+        lowConfidenceResults.forEach {
+            println("${it.ticketId} -> ${it.similarity}")
+        }
+
+        val highConfidenceTickets =
+            getTickets(highConfidenceResults)
+
+        val lowConfidenceTickets =
+            getTickets(lowConfidenceResults)
+
+        return RetrievalResponse(
+            highConfidence = highConfidenceTickets,
+            lowConfidence = lowConfidenceTickets
+        )
+    }
+
+    private fun getTickets(
+        results: List<SearchResult>
+    ): List<RetrievedTicket> {
 
         val retrievedTickets =
             mutableListOf<RetrievedTicket>()
 
-        topFive.forEach { result ->
+        results.forEach { result ->
 
             val ticket =
                 TicketRepository.findById(result.ticketId)
@@ -67,31 +100,18 @@ class RetrievalService {
             if (ticket != null) {
 
                 retrievedTickets.add(
-
                     RetrievedTicket(
-
                         ticketId = ticket.ticketId,
-
                         title = ticket.title,
-
                         description = ticket.description,
-
                         resolution = ticket.resolution,
-
                         conversation = ticket.conversation,
-
                         similarity = result.similarity
-
                     )
-
                 )
-
             }
-
         }
 
         return retrievedTickets
-
     }
-
 }
