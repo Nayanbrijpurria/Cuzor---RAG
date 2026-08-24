@@ -30,9 +30,6 @@ This project was created using the [Ktor Project Generator](https://start.ktor.i
 
 Initially, I started implementing the embedding pipeline in Kotlin using ONNX Runtime because our backend is built with Ktor. While working on the implementation, I realized that BGE-M3 requires several NLP-specific steps such as Hugging Face tokenization, ONNX inference, mean pooling, and vector normalization. The Hugging Face ecosystem and ONNX tooling are much more mature in Python than on the JVM. Instead of spending time maintaining complex AI inference code in Kotlin, I decided to keep the business backend in Kotlin and move only the embedding generation into a dedicated Python microservice. This keeps the main application in Kotlin while using Python only where it has a clear technical advantage.
 
-## NOTE:
-
-This is right now a prototype version because we work on only 10 tickets, and the similarity search is done in Kotlin to check whether the pipeline is working or not. Once this is done and accepted by any official I'm working with, then the retrieval logic works with 10 tickets, we can move the similarity search to PostgreSQL + pgvector and then index all 5,000+ tickets.
 
 ## Building & Running
 
