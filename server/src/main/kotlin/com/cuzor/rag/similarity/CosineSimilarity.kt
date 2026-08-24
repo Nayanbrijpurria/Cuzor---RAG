@@ -31,5 +31,5 @@ object CosineSimilarity {
                 (sqrt(normA) * sqrt(normB))
 
     }
-
 }
+

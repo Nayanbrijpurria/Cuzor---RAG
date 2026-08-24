@@ -8,5 +8,4 @@ data class RetrievalResponse(
     val highConfidence: List<RetrievedTicket>,
 
     val lowConfidence: List<RetrievedTicket>
-
 )

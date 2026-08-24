@@ -38,7 +38,7 @@ fun Application.module() {
 
     runBlocking {
 
-        for (ticket in tickets.take(10)) {
+        for (ticket in tickets) {
 
             TicketRepository.save(ticket)
 

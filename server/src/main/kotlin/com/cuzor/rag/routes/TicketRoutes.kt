@@ -24,30 +24,50 @@ fun Route.ticketRoutes() {
             )
 
         }
+        post("/search") {
 
+            val request =
+                call.receive<SearchRequest>()
+
+            println("===================================")
+            println("Search Request Received")
+            println("Query : ${request.query}")
+            println("===================================")
+
+            val results =
+
+                retrievalService.retrieve(
+
+                    request.query
+
+                )
+
+            call.respond(results)
+
+
+        }
+
+//    post("/search") {
+//
+//        val request =
+//            call.receive<SearchRequest>()
+//
+//        println("===================================")
+//        println("Search Request Received")
+//        println("Query : ${request.query}")
+//        println("===================================")
+//
+//        val results =
+//
+//            retrievalService.retrieve(
+//
+//                request.query
+//
+//            )
+//
+//        call.respond(results)
+//
+
+//    }
     }
-
-    post("/search") {
-
-        val request =
-            call.receive<SearchRequest>()
-
-        println("===================================")
-        println("Search Request Received")
-        println("Query : ${request.query}")
-        println("===================================")
-
-        val results =
-
-            retrievalService.retrieve(
-
-                request.query
-
-            )
-
-        call.respond(results)
-
-
-    }
-
 }

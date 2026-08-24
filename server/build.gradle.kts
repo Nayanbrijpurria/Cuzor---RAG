@@ -32,6 +32,11 @@ dependencies {
     // PostgreSQL Driver
     implementation("org.postgresql:postgresql:42.7.3")
 
+    // pgvector
+    implementation("com.pgvector:pgvector:0.1.6")
+
+
+
 // Exposed ORM
     implementation("org.jetbrains.exposed:exposed-core:0.52.0")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.52.0")
@@ -59,7 +64,5 @@ dependencies {
     implementation("io.ktor:ktor-client-cio")
     implementation("io.ktor:ktor-client-content-negotiation")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
-
-
 
 }

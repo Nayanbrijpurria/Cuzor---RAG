@@ -5,6 +5,7 @@ import com.cuzor.rag.models.EmbeddingResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -20,15 +21,18 @@ object EmbeddingClient {
     private val client = HttpClient(CIO) {
 
         install(ContentNegotiation) {
-
             json(
                 Json {
                     ignoreUnknownKeys = true
                 }
             )
-
         }
 
+        install(HttpTimeout) {
+            requestTimeoutMillis = 120_000
+            connectTimeoutMillis = 30_000
+            socketTimeoutMillis = 120_000
+        }
     }
 
     suspend fun generateEmbedding(
@@ -44,11 +48,11 @@ object EmbeddingClient {
                     EmbeddingRequest(text)
                 )
 
-
             }.body()
 
         return response.embedding.toFloatArray()
-
     }
 
 }
+
+
