@@ -40,6 +40,7 @@ object TicketRepository {
         return transaction {
             TicketTable.selectAll().where { TicketTable.ticketId eq ticketId }.count() > 0
         }
+
     }
     fun count(): Long {
 

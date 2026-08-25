@@ -25,13 +25,11 @@ object CosineSimilarity {
             normA += vectorA[i] * vectorA[i]
 
             normB += vectorB[i] * vectorB[i]
-
         }
-
         return dot /
 
                 (sqrt(normA) * sqrt(normB))
 
     }
-
 }
+

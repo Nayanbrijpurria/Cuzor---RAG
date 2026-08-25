@@ -20,7 +20,6 @@ class InferenceEngine {
                 OnnxSessionFactory.environment(),
 
                 arrayOf(input.inputIds)
-
             )
 
         val attentionMaskTensor =

@@ -32,13 +32,13 @@ fun Application.module() {
     println("Starting Ticket Import...")
     println("===================================")
     val tickets =
-        CsvReader.read("C:\\Users\\ASUS\\IdeaProjects\\cuzor-rag\\server\\src\\main\\resources\\data\\live-tickets-june-2026-rag.csv")
+         CsvReader.read("C:\\Users\\ASUS\\IdeaProjects\\cuzor-rag\\server\\src\\main\\resources\\data\\live-tickets-june-2026-rag.csv")
 
     println("Tickets Found : ${tickets.size}")
 
     runBlocking {
 
-        for (ticket in tickets.take(10)) {
+        for (ticket in tickets) {
 
             TicketRepository.save(ticket)
 
