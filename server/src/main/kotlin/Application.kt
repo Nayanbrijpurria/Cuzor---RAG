@@ -9,8 +9,14 @@ import com.cuzor.rag.csv.CsvReader
 import com.cuzor.rag.repository.TicketRepository
 import com.cuzor.rag.services.TicketEmbeddingService
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+
+
+//for CPU optimization
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.cuzor.rag.configureSerialization
+import kotlinx.coroutines.GlobalScope
 
 fun main(args: Array<String>) {
     EngineMain.main(args)
@@ -32,11 +38,11 @@ fun Application.module() {
     println("Starting Ticket Import...")
     println("===================================")
     val tickets =
-         CsvReader.read("C:\\Users\\ASUS\\IdeaProjects\\cuzor-rag\\server\\src\\main\\resources\\data\\live-tickets-june-2026-rag.csv")
+         CsvReader.read("C:\\Users\\ASUS\\Downloads\\live-tickets-june-2026-rag.csv")
 
     println("Tickets Found : ${tickets.size}")
 
-    runBlocking {
+     GlobalScope.launch {
 
         for (ticket in tickets) {
 
@@ -47,13 +53,14 @@ fun Application.module() {
         }
 
     }
+
     println("===================================")
     println("Ticket Import Finished")
     println("===================================")
 
 
     val ticket = CsvReader.read(
-        "C:\\Users\\ASUS\\IdeaProjects\\cuzor-rag\\server\\src\\main\\resources\\data\\live-tickets-june-2026-rag.csv"
+        "C:\\Users\\ASUS\\Downloads\\live-tickets-june-2026-rag.csv"
     )
 
     println("Total Tickets = ${ticket.size}")
@@ -62,5 +69,3 @@ fun Application.module() {
         println(it)
     }
 }
-
-

@@ -37,6 +37,7 @@ class TicketEmbeddingService {
         )
     }
 
+
     suspend fun save(ticket: Ticket) {
 
         val embedding = generate(ticket)

@@ -2,7 +2,6 @@ from pathlib import Path
 
 from tokenizers import Tokenizer
 
-
 MODEL_DIRECTORY = Path(__file__).resolve().parent.parent / "model"
 TOKENIZER_PATH = MODEL_DIRECTORY / "tokenizer.json"
 

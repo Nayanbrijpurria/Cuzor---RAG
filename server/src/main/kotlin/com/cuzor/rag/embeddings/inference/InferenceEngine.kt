@@ -32,7 +32,6 @@ class InferenceEngine {
             )
 
         val inputs = mapOf(
-
             "input_ids" to inputIdsTensor,
 
             "attention_mask" to attentionMaskTensor

@@ -6,3 +6,12 @@ import kotlinx.serialization.Serializable
 data class EmbeddingResponse(
     val embedding: List<Float>
 )
+
+
+
+
+
+
+
+
+
