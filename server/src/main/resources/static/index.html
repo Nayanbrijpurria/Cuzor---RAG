@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Cuzor RAG</title>
+
+    <link
+            rel="stylesheet"
+            href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- ==========================================
+         SIDEBAR
+         ========================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                C
+            </div>
+
+            <div>
+
+                <h1>Cuzor</h1>
+
+                <span>
+                    RAG Search
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="sidebar-section">
+
+            <p class="sidebar-label">
+                SEARCH
+            </p>
+
+
+            <button
+                    class="new-search"
+                    onclick="resetSearch()"
+            >
+                + New Search
+            </button>
+
+        </div>
+
+
+        <div class="sidebar-info">
+
+            <div class="info-title">
+                Vector Search
+            </div>
+
+            <div class="info-text">
+                PostgreSQL + pgvector
+            </div>
+
+
+            <div class="status">
+
+                <span class="status-dot"></span>
+
+                System Online
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- ==========================================
+         MAIN CONTENT
+         ========================================== -->
+
+    <main class="main">
+
+
+        <!-- HEADER -->
+
+        <header class="header">
+
+            <div>
+
+                <p class="eyebrow">
+                    For BI
+                </p>
+
+
+                <h2>
+                    Cuzor RAG Search
+                </h2>
+
+
+                <p class="header-description">
+                    Find relevant customer-support tickets
+                    using semantic search.
+                </p>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- ==========================================
+             SEARCH
+             ========================================== -->
+
+        <section class="search-section">
+
+            <div class="search-box">
+
+                <span class="search-icon">
+                    🔍
+                </span>
+
+
+                <input
+                        id="searchInput"
+                        type="text"
+                        placeholder="Describe the customer's problem..."
+                        onkeydown="handleSearchKey(event)"
+                >
+
+
+                <button
+                        id="searchButton"
+                        onclick="searchTickets()"
+                >
+                    Search
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==========================================
+             SEARCH SETTINGS
+             ========================================== -->
+
+        <section
+                id="controls"
+                class="controls"
+        >
+
+
+            <!-- NUMBER OF RESULTS -->
+
+            <div class="control-card">
+
+                <div class="control-header">
+
+                    <div>
+
+                        <span class="control-title">
+                            Number of Tickets
+                        </span>
+
+
+                        <span
+                                id="limitValue"
+                                class="threshold-value"
+                        >
+                            30
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <input
+                        id="resultLimit"
+                        type="range"
+                        min="1"
+                        max="40"
+                        step="1"
+                        value="20"
+                        oninput="updateLimit()"
+                >
+
+
+                <div class="range-labels">
+
+                    <span>
+                        1
+                    </span>
+
+                    <span>
+                        40
+                    </span>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- HIGH CONFIDENCE -->
+
+            <div class="control-card">
+
+                <div class="control-header">
+
+                    <div>
+
+                        <span class="control-title">
+                            High Confidence
+                        </span>
+
+
+                        <span
+                                id="highValue"
+                                class="threshold-value"
+                        >
+                            0.75
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <input
+                        id="highThreshold"
+                        type="range"
+                        min="0.50"
+                        max="0.95"
+                        step="0.01"
+                        value="0.75"
+                        oninput="updateResults()"
+                >
+
+
+                <div class="range-labels">
+
+                    <span>
+                        0.50
+                    </span>
+
+                    <span>
+                        0.95
+                    </span>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- LOW CONFIDENCE -->
+
+            <div class="control-card">
+
+                <div class="control-header">
+
+                    <div>
+
+                        <span class="control-title">
+                            Minimum Similarity
+                        </span>
+
+
+                        <span
+                                id="lowValue"
+                                class="threshold-value"
+                        >
+                            0.50
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <input
+                        id="lowThreshold"
+                        type="range"
+                        min="0.50"
+                        max="0.90"
+                        step="0.01"
+                        value="0.50"
+                        oninput="updateResults()"
+                >
+
+
+                <div class="range-labels">
+
+                    <span>
+                        0.50
+                    </span>
+
+                    <span>
+                        0.90
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==========================================
+             RESULTS
+             ========================================== -->
+
+        <section
+                id="resultsSection"
+                class="results-section hidden"
+        >
+
+
+            <div class="results-header">
+
+                <div>
+
+                    <p class="eyebrow">
+                        SEARCH RESULTS
+                    </p>
+
+
+                    <h3>
+                        Matching Tickets
+                    </h3>
+
+                </div>
+
+
+                <div
+                        id="resultCount"
+                        class="result-count"
+                >
+                    0 tickets
+                </div>
+
+            </div>
+
+
+
+            <!-- ======================================
+                 HIGH CONFIDENCE
+                 ====================================== -->
+
+            <div class="confidence-section">
+
+                <div class="section-heading">
+
+                    <div
+                            class="confidence-indicator high"
+                    ></div>
+
+
+                    <h4>
+                        High Confidence
+                    </h4>
+
+
+                    <span id="highCount">
+                        0
+                    </span>
+
+                </div>
+
+
+                <div
+                        id="highResults"
+                        class="ticket-grid"
+                >
+                </div>
+
+            </div>
+
+
+
+            <!-- ======================================
+                 LOW CONFIDENCE
+                 ====================================== -->
+
+            <div class="confidence-section">
+
+                <div class="section-heading">
+
+                    <div
+                            class="confidence-indicator low"
+                    ></div>
+
+
+                    <h4>
+                        Low Confidence
+                    </h4>
+
+
+                    <span id="lowCount">
+                        0
+                    </span>
+
+                </div>
+
+
+                <div
+                        id="lowResults"
+                        class="ticket-grid"
+                >
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==========================================
+             EMPTY STATE
+             ========================================== -->
+
+        <section
+                id="emptyState"
+                class="empty-state"
+        >
+
+            <div class="empty-icon">
+                ✦
+            </div>
+
+
+            <h3>
+                Search your support history
+            </h3>
+
+
+            <p>
+                Enter a customer's problem above to find
+                semantically similar support tickets.
+            </p>
+
+        </section>
+
+
+
+        <!-- ==========================================
+             LOADING
+             ========================================== -->
+
+        <section
+                id="loading"
+                class="loading hidden"
+        >
+
+            <div class="loader"></div>
+
+
+            <p>
+                Searching support tickets...
+            </p>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+
+<!-- ==============================================
+     TICKET DETAIL MODAL
+     ============================================== -->
+
+<div
+        id="ticketModal"
+        class="modal hidden"
+>
+
+    <div
+            class="modal-overlay"
+            onclick="closeTicket()"
+    ></div>
+
+
+    <div class="modal-content">
+
+
+        <div class="modal-header">
+
+            <div>
+
+                <p class="eyebrow">
+                    TICKET DETAILS
+                </p>
+
+
+                <h2 id="modalTicketId">
+                    Ticket
+                </h2>
+
+            </div>
+
+
+            <button
+                    class="close-button"
+                    onclick="closeTicket()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div
+                id="modalBody"
+                class="modal-body"
+        >
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script src="script.js"></script>
+
+</body>
+
+</html>

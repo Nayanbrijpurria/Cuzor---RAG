@@ -5,7 +5,6 @@ from tokenizers import Tokenizer
 MODEL_DIRECTORY = Path(__file__).resolve().parent.parent / "model"
 TOKENIZER_PATH = MODEL_DIRECTORY / "tokenizer.json"
 
-
 class TokenizerService:
 
     def __init__(self) -> None:

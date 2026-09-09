@@ -32,4 +32,5 @@ object TicketTable : Table("tickets") {
 
     override val primaryKey = PrimaryKey(ticketId)
 
+
 }

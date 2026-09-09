@@ -21,51 +21,74 @@ import kotlinx.coroutines.GlobalScope
 fun main(args: Array<String>) {
     EngineMain.main(args)
 }
-
+//--------------------------------------------------------------
+//  IF YOU DO NOT WANT TO IMPORT AND JUST RUN THE APPLICATION
 fun Application.module() {
+
     val config = AppConfig(this)
-    val ticketEmbeddingService = TicketEmbeddingService()
 
-    println(environment.config.toMap())
-
+    // Configure Ktor
     configureSerialization()
-
     configureRouting()
 
+    // Connect to PostgreSQL
     DatabaseFactory.init(config)
 
     println("===================================")
-    println("Starting Ticket Import...")
+    println("Cuzor RAG Application Started")
     println("===================================")
-    val tickets =
-         CsvReader.read("C:\\Users\\ASUS\\Downloads\\live-tickets-june-2026-rag.csv")
-
-    println("Tickets Found : ${tickets.size}")
-
-     GlobalScope.launch {
-
-        for (ticket in tickets) {
-
-            TicketRepository.save(ticket)
-
-            ticketEmbeddingService.save(ticket)
-
-        }
-
-    }
-
-    println("===================================")
-    println("Ticket Import Finished")
-    println("===================================")
-
-
-    val ticket = CsvReader.read(
-        "C:\\Users\\ASUS\\Downloads\\live-tickets-june-2026-rag.csv"
-    )
-
-    println("Total Tickets = ${ticket.size}")
-
-    ticket.take(3).forEach {
-        println(it)
-    }
 }
+
+//--------------------------------------------------------
+
+//IF YOU WANT TO IMPORT NEW TICKETS
+
+//fun Application.module() {
+//    val config = AppConfig(this)
+//    val ticketEmbeddingService = TicketEmbeddingService()
+//
+//    println(environment.config.toMap())
+//
+//    configureSerialization()
+//
+//    configureRouting()
+//
+//    DatabaseFactory.init(config)
+//
+//    println("===================================")
+//    println("Starting Ticket Import...")
+//    println("===================================")
+//    val tickets =
+//        CsvReader.read("C:\\Users\\ASUS\\Downloads\\live-tickets-july-2026-rag.csv")
+//
+//    println("Tickets Found : ${tickets.size}")
+//
+//    GlobalScope.launch {
+//
+//        for (ticket in tickets) {
+//
+//            TicketRepository.save(ticket)
+//
+//            ticketEmbeddingService.save(ticket)
+//
+//        }
+//
+//    }
+//
+//    println("===================================")
+//    println("Ticket Import Finished")
+//    println("===================================")
+//
+//
+//    val ticket = CsvReader.read(
+//        "C:\\Users\\ASUS\\Downloads\\live-tickets-july-2026-rag.csv"
+//    )
+//
+//    println("Total Tickets = ${ticket.size}")
+//
+//    ticket.take(3).forEach {
+//        println(it)
+//    }
+//
+//}
+

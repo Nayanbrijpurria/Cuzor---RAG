@@ -1,5 +1,8 @@
 package com.cuzor.rag.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Ticket(
 
     val ticketId: String,

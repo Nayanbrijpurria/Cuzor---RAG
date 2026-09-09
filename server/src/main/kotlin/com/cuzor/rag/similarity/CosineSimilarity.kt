@@ -5,7 +5,6 @@ import kotlin.math.sqrt
 object CosineSimilarity {
 
     fun calculate(
-
         vectorA: FloatArray,
 
         vectorB: FloatArray

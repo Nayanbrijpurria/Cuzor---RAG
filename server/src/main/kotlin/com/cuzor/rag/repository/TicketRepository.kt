@@ -34,6 +34,7 @@ object TicketRepository {
                 throw e
             }
         }
+
     }
      
     fun exists(ticketId: String): Boolean {
