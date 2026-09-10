@@ -32,7 +32,8 @@ This project was created using the [Ktor Project Generator](https://start.ktor.i
 <img width="1905" height="1085" alt="AdobeExpressPhotos_1842941cdf56417f83c908ff56a9527b_CopyEdited" src="https://github.com/user-attachments/assets/3060e896-df2e-47c5-b7d5-c40e34db7030" />
 
 
-<img width="953" height="583" alt="Screenshot 2026-09-08 145459" src="https://github.com/user-attachments/assets/f03806f7-9e4c-48a6-813a-7a4e2d2f27c3" />
+<img width="1877" height="1100" alt="AdobeExpressPhotos_3433665b976e42c5a58d186a822dc745_CopyEdited" src="https://github.com/user-attachments/assets/37115390-f45c-4b70-8d20-82041df996c9" />
+
 
 <img width="1858" height="1115" alt="AdobeExpressPhotos_056d8ddb96c04530bdf95e9044eefd94_CopyEdited" src="https://github.com/user-attachments/assets/0cbec6d6-77bb-422a-a929-9ee7a6bba368" />
 
