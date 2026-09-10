@@ -4,7 +4,7 @@ This project was created using the [Ktor Project Generator](https://start.ktor.i
 
 ## RAG pipeline is now doing the following successfully:
 
-✅ User sends a query in Postman
+✅ User sends a query 
 
 ⬇️
 
