@@ -26,9 +26,21 @@ This project was created using the [Ktor Project Generator](https://start.ktor.i
 
 ✅ Tickets with low confidence and high confidence will be returned.
 
+
+## Some Screenshots.
+
+<img width="946" height="593" alt="Screenshot 2026-09-08 144002" src="https://github.com/user-attachments/assets/a7e669bc-5eff-4c54-995d-a2c8946b0d5f" />
+
+<img width="953" height="583" alt="Screenshot 2026-09-08 145459" src="https://github.com/user-attachments/assets/f03806f7-9e4c-48a6-813a-7a4e2d2f27c3" />
+
+<img width="1858" height="1115" alt="AdobeExpressPhotos_056d8ddb96c04530bdf95e9044eefd94_CopyEdited" src="https://github.com/user-attachments/assets/0cbec6d6-77bb-422a-a929-9ee7a6bba368" />
+
+<img width="1893" height="1095" alt="AdobeExpressPhotos_ed144a72f6ff473abe4650ad6a05173a_CopyEdited" src="https://github.com/user-attachments/assets/55e7428f-3f54-463b-b09c-51d79a7804f9" />
+
 ## Design Decision: Embedding Service Architecture
 
 Initially, I started implementing the embedding pipeline in Kotlin using ONNX Runtime because our backend is built with Ktor. While working on the implementation, I realized that BGE-M3 requires several NLP-specific steps such as Hugging Face tokenization, ONNX inference, mean pooling, and vector normalization. The Hugging Face ecosystem and ONNX tooling are much more mature in Python than on the JVM. Instead of spending time maintaining complex AI inference code in Kotlin, I decided to keep the business backend in Kotlin and move only the embedding generation into a dedicated Python microservice. This keeps the main application in Kotlin while using Python only where it has a clear technical advantage.
+
 
 
 ## Building & Running
