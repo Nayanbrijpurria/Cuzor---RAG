@@ -20,18 +20,15 @@ fun Route.ticketRoutes() {
 
     route("/tickets") {
 
-
         // ==========================================
         // GET TICKETS
         // ==========================================
 
         get {
-
             call.respond(
-                ticketService.getTopFiveTickets()
+                       ticketService.getTopFiveTickets()
             )
         }
-
 
         // ==========================================
         // VECTOR SEARCH
@@ -42,13 +39,11 @@ fun Route.ticketRoutes() {
             val request =
                 call.receive<SearchRequest>()
 
-
             println("===================================")
             println("Search Request Received")
             println("Query : ${request.query}")
             println("Limit : ${request.limit}")
             println("===================================")
-
 
             val results =
                 retrievalService.retrieve(
@@ -59,7 +54,6 @@ fun Route.ticketRoutes() {
                     limit =
                         request.limit
                 )
-
 
             call.respond(
                 results
@@ -109,10 +103,9 @@ fun Route.ticketRoutes() {
                         io.ktor.http.HttpStatusCode.NotFound
                 )
 
+
                 return@get
             }
-
-
             call.respond(
                 ticket
             )

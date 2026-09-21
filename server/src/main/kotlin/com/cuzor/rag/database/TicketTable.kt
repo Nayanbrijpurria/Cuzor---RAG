@@ -30,7 +30,9 @@ object TicketTable : Table("tickets") {
 
     val conversation = text("conversation")
 
+    // 0 = embedding pending
+    // 1 = embedding successfully generated
+    val embeddingVerified = integer("embedding_verified")
+
     override val primaryKey = PrimaryKey(ticketId)
-
-
 }

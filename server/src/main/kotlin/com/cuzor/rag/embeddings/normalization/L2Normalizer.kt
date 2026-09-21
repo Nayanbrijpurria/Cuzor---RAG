@@ -13,9 +13,7 @@ object L2Normalizer {
         var sum = 0f
 
         for (v in vector) {
-
             sum += v * v
-
         }
 
         val norm =

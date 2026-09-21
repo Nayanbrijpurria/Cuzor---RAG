@@ -39,32 +39,52 @@ object DatabaseFactory {
 
             transaction {
 
+                // Create the tickets table if it does not exist
                 SchemaUtils.create(
                     TicketTable
                 )
 
+                /*
+                 * Add embedding verification status.
+                 *
+                 * 0 = embedding is pending
+                 * 1 = embedding has been successfully generated
+                 *
+                 * IF NOT EXISTS makes this safe to run
+                 * when the column already exists.
+                 */
                 exec(
                     """
-        CREATE EXTENSION IF NOT EXISTS vector
-        """.trimIndent()
+                    ALTER TABLE tickets
+                    ADD COLUMN IF NOT EXISTS embedding_verified
+                    INTEGER NOT NULL DEFAULT 0
+                    """.trimIndent()
                 )
 
+                // Create pgvector extension
                 exec(
-
                     """
-        CREATE TABLE IF NOT EXISTS ticket_embeddings (
-            ticket_id VARCHAR(100) PRIMARY KEY,
-            embedding vector(1024)
-        )
-        """.trimIndent()
+                    CREATE EXTENSION IF NOT EXISTS vector
+                    """.trimIndent()
                 )
 
+                // Create vector table
                 exec(
                     """
-        CREATE INDEX IF NOT EXISTS ticket_embeddings_vector_idx
-        ON ticket_embeddings
-        USING hnsw (embedding vector_cosine_ops)
-        """.trimIndent()
+                    CREATE TABLE IF NOT EXISTS ticket_embeddings (
+                        ticket_id VARCHAR(100) PRIMARY KEY,
+                        embedding vector(1024)
+                    )
+                    """.trimIndent()
+                )
+
+                // Create HNSW vector index
+                exec(
+                    """
+                    CREATE INDEX IF NOT EXISTS ticket_embeddings_vector_idx
+                    ON ticket_embeddings
+                    USING hnsw (embedding vector_cosine_ops)
+                    """.trimIndent()
                 )
             }
 

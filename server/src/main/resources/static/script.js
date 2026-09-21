@@ -718,7 +718,7 @@ function renderTicketList(
 
                 No matching tickets found.
 
-            </div>
+            </div>     
 
         `;
 
@@ -764,10 +764,9 @@ function createTicketCard(
             ticket.similarity || 0
         );
 
-
     const percentage =
         (
-            similarity * 40
+            similarity * 100
         ).toFixed(1);
 
 
@@ -842,7 +841,6 @@ function createTicketCard(
         <p class="ticket-preview">
             ${escapeHtml(preview)}
         </p>
-
 
         <div class="ticket-card-footer">
 
@@ -926,7 +924,6 @@ async function openTicket(
         modalTitle.textContent =
             ticketId;
     }
-
 
     modalBody.innerHTML = `
 

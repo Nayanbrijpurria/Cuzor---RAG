@@ -13,11 +13,15 @@ database:
   user: postgres
   password: 140193
 
-csv:
-  path: 'C:\Users\ASUS\Downloads\live-tickets-june-2026-rag.csv'
+#csv:
+#  path: 'C:\Users\ASUS\Downloads\live-tickets-july-2026-rag.csv'
 
 embedding:
   model: BAAI/bge-m3
+
+  worker:
+    intervalMinutes: 1440 # 1 day
+    batchSize: 50 # 50 tickets per batch
 
 logging:
   level: INFO
