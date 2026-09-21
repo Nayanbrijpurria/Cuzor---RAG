@@ -39,20 +39,22 @@ object DatabaseFactory {
 
             transaction {
 
-                // Create the tickets table if it does not exist
+                // =====================================================
+                // TICKETS TABLE
+                // =====================================================
+
                 SchemaUtils.create(
                     TicketTable
                 )
 
-                /*
-                 * Add embedding verification status.
-                 *
-                 * 0 = embedding is pending
-                 * 1 = embedding has been successfully generated
-                 *
-                 * IF NOT EXISTS makes this safe to run
-                 * when the column already exists.
-                 */
+                // =====================================================
+                // EMBEDDING STATUS
+                //
+                // 0 = PENDING
+                // 1 = EMBEDDED
+                // 2 = FAILED
+                // =====================================================
+
                 exec(
                     """
                     ALTER TABLE tickets
@@ -61,14 +63,36 @@ object DatabaseFactory {
                     """.trimIndent()
                 )
 
-                // Create pgvector extension
+                // =====================================================
+                // EMBEDDING ATTEMPTS
+                //
+                // 0 = never attempted
+                // 1 = failed once
+                // 2 = failed twice
+                // =====================================================
+
+                exec(
+                    """
+                    ALTER TABLE tickets
+                    ADD COLUMN IF NOT EXISTS embedding_attempts
+                    INTEGER NOT NULL DEFAULT 0
+                    """.trimIndent()
+                )
+
+                // =====================================================
+                // PGVECTOR EXTENSION
+                // =====================================================
+
                 exec(
                     """
                     CREATE EXTENSION IF NOT EXISTS vector
                     """.trimIndent()
                 )
 
-                // Create vector table
+                // =====================================================
+                // TICKET EMBEDDINGS TABLE
+                // =====================================================
+
                 exec(
                     """
                     CREATE TABLE IF NOT EXISTS ticket_embeddings (
@@ -78,7 +102,10 @@ object DatabaseFactory {
                     """.trimIndent()
                 )
 
-                // Create HNSW vector index
+                // =====================================================
+                // HNSW VECTOR INDEX
+                // =====================================================
+
                 exec(
                     """
                     CREATE INDEX IF NOT EXISTS ticket_embeddings_vector_idx

@@ -29,6 +29,25 @@ data class Ticket(
 
     val resolution: String,
 
-    val conversation: String
+    val conversation: String,
 
+    // =====================================================
+    // EMBEDDING STATUS
+    //
+    // 0 = PENDING
+    // 1 = EMBEDDED
+    // 2 = FAILED
+    // =====================================================
+
+    val embeddingVerified: Int = 0,
+
+    // =====================================================
+    // EMBEDDING ATTEMPTS
+    //
+    // 0 = never attempted
+    // 1 = failed once
+    // 2 = failed twice
+    // =====================================================
+
+    val embeddingAttempts: Int = 0
 )

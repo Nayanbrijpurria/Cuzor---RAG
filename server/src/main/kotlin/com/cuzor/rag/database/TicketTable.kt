@@ -30,9 +30,28 @@ object TicketTable : Table("tickets") {
 
     val conversation = text("conversation")
 
-    // 0 = embedding pending
-    // 1 = embedding successfully generated
-    val embeddingVerified = integer("embedding_verified")
+    // =====================================================
+    // EMBEDDING STATUS
+    //
+    // 0 = PENDING
+    // 1 = EMBEDDED
+    // 2 = FAILED
+    // =====================================================
 
-    override val primaryKey = PrimaryKey(ticketId)
+    val embeddingVerified =
+        integer("embedding_verified")
+
+    // =====================================================
+    // EMBEDDING ATTEMPTS
+    //
+    // 0 = never attempted
+    // 1 = failed once
+    // 2 = failed twice
+    // =====================================================
+
+    val embeddingAttempts =
+        integer("embedding_attempts")
+
+    override val primaryKey =
+        PrimaryKey(ticketId)
 }

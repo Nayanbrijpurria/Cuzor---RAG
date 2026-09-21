@@ -1,24 +1,29 @@
 package com.cuzor.rag.repository
 
 import com.cuzor.rag.database.TicketTable
+import com.cuzor.rag.models.EmbeddingStatus
 import com.cuzor.rag.models.Ticket
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
 object TicketRepository {
 
     /*
-     * Save a new ticket.
+     * =========================================================
+     * SAVE NEW TICKET
+     * =========================================================
      *
-     * New tickets automatically start with:
+     * New tickets always start as:
      *
-     * embedding_verified = 0
+     * PENDING
+     * attempts = 0
      *
-     * This means:
-     * "Ticket exists, but its embedding has not been generated yet."
+     * Meaning:
+     * "The ticket exists, but embedding has not been generated."
      */
+
     fun save(ticket: Ticket) {
 
         try {
@@ -53,8 +58,12 @@ object TicketRepository {
 
                     it[conversation] = ticket.conversation
 
-                    // New ticket → embedding is pending
-                    it[embeddingVerified] = 0
+                    // New ticket → PENDING
+                    it[embeddingVerified] =
+                        EmbeddingStatus.PENDING.code
+
+                    // No embedding attempt yet
+                    it[embeddingAttempts] = 0
                 }
             }
 
@@ -73,8 +82,11 @@ object TicketRepository {
 
 
     /*
-     * Check whether a ticket already exists.
+     * =========================================================
+     * CHECK WHETHER TICKET EXISTS
+     * =========================================================
      */
+
     fun exists(ticketId: String): Boolean {
 
         return transaction {
@@ -90,8 +102,11 @@ object TicketRepository {
 
 
     /*
-     * Get total number of tickets.
+     * =========================================================
+     * GET TOTAL NUMBER OF TICKETS
+     * =========================================================
      */
+
     fun count(): Long {
 
         return transaction {
@@ -104,51 +119,83 @@ object TicketRepository {
 
 
     /*
-     * Find tickets whose embeddings have not been generated yet.
+     * =========================================================
+     * FIND PENDING EMBEDDING TICKETS
+     * =========================================================
+     *
+     * Only tickets with:
      *
      * embedding_verified = 0
+     *
+     * are returned.
+     *
+     * FAILED tickets (2) are therefore ignored.
      */
-    fun findPendingEmbeddingTickets(limit: Int = 50): List<Ticket> {
 
-        val safeLimit = limit.coerceIn(1, 500)
+    fun findPendingEmbeddingTickets(
+        limit: Int = 50
+    ): List<Ticket> {
+
+        val safeLimit =
+            limit.coerceIn(1, 500)
 
         return transaction {
 
             TicketTable
                 .selectAll()
                 .where {
-                    TicketTable.embeddingVerified eq 0
+                    TicketTable.embeddingVerified eq
+                            EmbeddingStatus.PENDING.code
                 }
                 .limit(safeLimit)
                 .map {
 
                     Ticket(
 
-                        ticketId = it[TicketTable.ticketId],
+                        ticketId =
+                            it[TicketTable.ticketId],
 
-                        created = it[TicketTable.created],
+                        created =
+                            it[TicketTable.created],
 
-                        closedAt = it[TicketTable.closedAt],
+                        closedAt =
+                            it[TicketTable.closedAt],
 
-                        state = it[TicketTable.state],
+                        state =
+                            it[TicketTable.state],
 
-                        category = it[TicketTable.category],
+                        category =
+                            it[TicketTable.category],
 
-                        urgency = it[TicketTable.urgency],
+                        urgency =
+                            it[TicketTable.urgency],
 
-                        customerName = it[TicketTable.customerName],
+                        customerName =
+                            it[TicketTable.customerName],
 
-                        customerPhone = it[TicketTable.customerPhone],
+                        customerPhone =
+                            it[TicketTable.customerPhone],
 
-                        messageCount = it[TicketTable.messageCount],
+                        messageCount =
+                            it[TicketTable.messageCount],
 
-                        title = it[TicketTable.title],
+                        title =
+                            it[TicketTable.title],
 
-                        description = it[TicketTable.description],
+                        description =
+                            it[TicketTable.description],
 
-                        resolution = it[TicketTable.resolution],
+                        resolution =
+                            it[TicketTable.resolution],
 
-                        conversation = it[TicketTable.conversation]
+                        conversation =
+                            it[TicketTable.conversation],
+
+                        embeddingVerified =
+                            it[TicketTable.embeddingVerified],
+
+                        embeddingAttempts =
+                            it[TicketTable.embeddingAttempts]
                     )
                 }
         }
@@ -156,11 +203,21 @@ object TicketRepository {
 
 
     /*
-     * Mark embedding as successfully generated.
+     * =========================================================
+     * MARK EMBEDDING AS SUCCESSFUL
+     * =========================================================
+     *
+     * PENDING → EMBEDDED
      *
      * 0 → 1
+     *
+     * We do NOT reset attempts here.
+     * Attempts tell us how many times we tried.
      */
-    fun markEmbeddingVerified(ticketId: String) {
+
+    fun markEmbeddingVerified(
+        ticketId: String
+    ) {
 
         transaction {
 
@@ -170,21 +227,76 @@ object TicketRepository {
                 }
             ) {
 
-                it[embeddingVerified] = 1
+                it[embeddingVerified] =
+                    EmbeddingStatus.EMBEDDED.code
             }
         }
     }
 
 
     /*
-     * Reset embedding status.
+     * =========================================================
+     * INCREMENT EMBEDDING ATTEMPTS
+     * =========================================================
      *
-     * 1 → 0
+     * Example:
      *
-     * This will be used when an existing ticket
-     * is updated and therefore needs a new embedding.
+     * 0 → 1
+     * 1 → 2
      */
-    fun markEmbeddingPending(ticketId: String) {
+
+    fun incrementEmbeddingAttempts(
+        ticketId: String
+    ): Int {
+
+        return transaction {
+
+            val currentAttempts =
+                TicketTable
+                    .selectAll()
+                    .where {
+                        TicketTable.ticketId eq ticketId
+                    }
+                    .map {
+                        it[TicketTable.embeddingAttempts]
+                    }
+                    .firstOrNull()
+                    ?: 0
+
+            val newAttempts =
+                (currentAttempts + 1)
+                    .coerceAtMost(2)
+
+            TicketTable.update(
+                where = {
+                    TicketTable.ticketId eq ticketId
+                }
+            ) {
+
+                it[embeddingAttempts] =
+                    newAttempts
+            }
+
+            newAttempts
+        }
+    }
+
+
+    /*
+     * =========================================================
+     * MARK EMBEDDING AS FAILED
+     * =========================================================
+     *
+     * PENDING → FAILED
+     *
+     * 0 → 2
+     *
+     * This should only happen after the second failed attempt.
+     */
+
+    fun markEmbeddingFailed(
+        ticketId: String
+    ) {
 
         transaction {
 
@@ -194,18 +306,63 @@ object TicketRepository {
                 }
             ) {
 
-                it[embeddingVerified] = 0
+                it[embeddingVerified] =
+                    EmbeddingStatus.FAILED.code
             }
         }
     }
 
 
     /*
-     * Keyword search.
+     * =========================================================
+     * RESET EMBEDDING
+     * =========================================================
+     *
+     * Used when an existing ticket is updated.
+     *
+     * FAILED / EMBEDDED / PENDING
+     *             ↓
+     *          PENDING
+     *
+     * Attempts are also reset because this is effectively
+     * a new embedding job for the updated ticket.
      */
-    fun keywordSearch(query: String): List<Ticket> {
 
-        println("Searching database for: $query")
+    fun markEmbeddingPending(
+        ticketId: String
+    ) {
+
+        transaction {
+
+            TicketTable.update(
+                where = {
+                    TicketTable.ticketId eq ticketId
+                }
+            ) {
+
+                it[embeddingVerified] =
+                    EmbeddingStatus.PENDING.code
+
+                it[embeddingAttempts] =
+                    0
+            }
+        }
+    }
+
+
+    /*
+     * =========================================================
+     * KEYWORD SEARCH
+     * =========================================================
+     */
+
+    fun keywordSearch(
+        query: String
+    ): List<Ticket> {
+
+        println(
+            "Searching database for: $query"
+        )
 
         return transaction {
 
@@ -215,31 +372,50 @@ object TicketRepository {
 
                     Ticket(
 
-                        ticketId = it[TicketTable.ticketId],
+                        ticketId =
+                            it[TicketTable.ticketId],
 
-                        created = it[TicketTable.created],
+                        created =
+                            it[TicketTable.created],
 
-                        closedAt = it[TicketTable.closedAt],
+                        closedAt =
+                            it[TicketTable.closedAt],
 
-                        state = it[TicketTable.state],
+                        state =
+                            it[TicketTable.state],
 
-                        category = it[TicketTable.category],
+                        category =
+                            it[TicketTable.category],
 
-                        urgency = it[TicketTable.urgency],
+                        urgency =
+                            it[TicketTable.urgency],
 
-                        customerName = it[TicketTable.customerName],
+                        customerName =
+                            it[TicketTable.customerName],
 
-                        customerPhone = it[TicketTable.customerPhone],
+                        customerPhone =
+                            it[TicketTable.customerPhone],
 
-                        messageCount = it[TicketTable.messageCount],
+                        messageCount =
+                            it[TicketTable.messageCount],
 
-                        title = it[TicketTable.title],
+                        title =
+                            it[TicketTable.title],
 
-                        description = it[TicketTable.description],
+                        description =
+                            it[TicketTable.description],
 
-                        resolution = it[TicketTable.resolution],
+                        resolution =
+                            it[TicketTable.resolution],
 
-                        conversation = it[TicketTable.conversation]
+                        conversation =
+                            it[TicketTable.conversation],
+
+                        embeddingVerified =
+                            it[TicketTable.embeddingVerified],
+
+                        embeddingAttempts =
+                            it[TicketTable.embeddingAttempts]
                     )
                 }
         }
@@ -247,8 +423,11 @@ object TicketRepository {
 
 
     /*
-     * Get first 5 tickets.
+     * =========================================================
+     * GET FIRST 5 TICKETS
+     * =========================================================
      */
+
     fun findTop5(): List<Ticket> {
 
         return transaction {
@@ -260,31 +439,50 @@ object TicketRepository {
 
                     Ticket(
 
-                        ticketId = it[TicketTable.ticketId],
+                        ticketId =
+                            it[TicketTable.ticketId],
 
-                        created = it[TicketTable.created],
+                        created =
+                            it[TicketTable.created],
 
-                        closedAt = it[TicketTable.closedAt],
+                        closedAt =
+                            it[TicketTable.closedAt],
 
-                        state = it[TicketTable.state],
+                        state =
+                            it[TicketTable.state],
 
-                        category = it[TicketTable.category],
+                        category =
+                            it[TicketTable.category],
 
-                        urgency = it[TicketTable.urgency],
+                        urgency =
+                            it[TicketTable.urgency],
 
-                        customerName = it[TicketTable.customerName],
+                        customerName =
+                            it[TicketTable.customerName],
 
-                        customerPhone = it[TicketTable.customerPhone],
+                        customerPhone =
+                            it[TicketTable.customerPhone],
 
-                        messageCount = it[TicketTable.messageCount],
+                        messageCount =
+                            it[TicketTable.messageCount],
 
-                        title = it[TicketTable.title],
+                        title =
+                            it[TicketTable.title],
 
-                        description = it[TicketTable.description],
+                        description =
+                            it[TicketTable.description],
 
-                        resolution = it[TicketTable.resolution],
+                        resolution =
+                            it[TicketTable.resolution],
 
-                        conversation = it[TicketTable.conversation]
+                        conversation =
+                            it[TicketTable.conversation],
+
+                        embeddingVerified =
+                            it[TicketTable.embeddingVerified],
+
+                        embeddingAttempts =
+                            it[TicketTable.embeddingAttempts]
                     )
                 }
         }
@@ -292,9 +490,14 @@ object TicketRepository {
 
 
     /*
-     * Find a ticket using its ID.
+     * =========================================================
+     * FIND TICKET BY ID
+     * =========================================================
      */
-    fun findById(ticketId: String): Ticket? {
+
+    fun findById(
+        ticketId: String
+    ): Ticket? {
 
         return transaction {
 
@@ -307,31 +510,50 @@ object TicketRepository {
 
                     Ticket(
 
-                        ticketId = it[TicketTable.ticketId],
+                        ticketId =
+                            it[TicketTable.ticketId],
 
-                        created = it[TicketTable.created],
+                        created =
+                            it[TicketTable.created],
 
-                        closedAt = it[TicketTable.closedAt],
+                        closedAt =
+                            it[TicketTable.closedAt],
 
-                        state = it[TicketTable.state],
+                        state =
+                            it[TicketTable.state],
 
-                        category = it[TicketTable.category],
+                        category =
+                            it[TicketTable.category],
 
-                        urgency = it[TicketTable.urgency],
+                        urgency =
+                            it[TicketTable.urgency],
 
-                        customerName = it[TicketTable.customerName],
+                        customerName =
+                            it[TicketTable.customerName],
 
-                        customerPhone = it[TicketTable.customerPhone],
+                        customerPhone =
+                            it[TicketTable.customerPhone],
 
-                        messageCount = it[TicketTable.messageCount],
+                        messageCount =
+                            it[TicketTable.messageCount],
 
-                        title = it[TicketTable.title],
+                        title =
+                            it[TicketTable.title],
 
-                        description = it[TicketTable.description],
+                        description =
+                            it[TicketTable.description],
 
-                        resolution = it[TicketTable.resolution],
+                        resolution =
+                            it[TicketTable.resolution],
 
-                        conversation = it[TicketTable.conversation]
+                        conversation =
+                            it[TicketTable.conversation],
+
+                        embeddingVerified =
+                            it[TicketTable.embeddingVerified],
+
+                        embeddingAttempts =
+                            it[TicketTable.embeddingAttempts]
                     )
                 }
                 .firstOrNull()

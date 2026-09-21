@@ -1,17 +1,18 @@
 package com.cuzor.rag.services
 
 import com.cuzor.rag.config.AppConfig
+import com.cuzor.rag.models.EmbeddingStatus
 import com.cuzor.rag.repository.EmbeddingRepository
 import com.cuzor.rag.repository.TicketRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.cancel
+
 
 class EmbeddingWorker(
     private val config: AppConfig
@@ -26,6 +27,9 @@ class EmbeddingWorker(
                     Dispatchers.IO
         )
 
+    // Maximum number of times a ticket will be attempted.
+    private val maxEmbeddingAttempts = 2
+
 
     /**
      * Start the background embedding worker.
@@ -34,6 +38,7 @@ class EmbeddingWorker(
 
         println("===================================")
         println("Starting Embedding Worker")
+
         println(
             "Interval : " +
                     config.embeddingWorkerIntervalMinutes +
@@ -44,6 +49,12 @@ class EmbeddingWorker(
             "Batch Size : " +
                     config.embeddingWorkerBatchSize
         )
+
+        println(
+            "Max Attempts : " +
+                    maxEmbeddingAttempts
+        )
+
         println("===================================")
 
 
@@ -52,15 +63,18 @@ class EmbeddingWorker(
             /*
              * Run the first cycle immediately.
              *
-             * We don't have to wait 5 minutes after
-             * application startup.
+             * We don't have to wait for the configured
+             * interval after application startup.
              */
+
             processPendingTickets()
+
 
             /*
              * Continue running while the worker
              * coroutine is active.
              */
+
             while (isActive) {
 
                 delay(
@@ -75,8 +89,13 @@ class EmbeddingWorker(
 
 
     /**
-     * Find tickets with embedding_verified = 0
+     * Find tickets with:
+     *
+     * embedding_verified = 0
+     *
      * and generate their embeddings.
+     *
+     * Tickets with status 1 or 2 are ignored.
      */
     private suspend fun processPendingTickets() {
 
@@ -126,6 +145,7 @@ class EmbeddingWorker(
 
             var successful = 0
             var failed = 0
+            var movedToFailed = 0
 
 
             // ==========================================
@@ -140,6 +160,18 @@ class EmbeddingWorker(
                 println(
                     "Processing Ticket : " +
                             ticket.ticketId
+                )
+
+                println(
+                    "Current Status : " +
+                            EmbeddingStatus.fromCode(
+                                ticket.embeddingVerified
+                            )
+                )
+
+                println(
+                    "Previous Attempts : " +
+                            ticket.embeddingAttempts
                 )
 
 
@@ -169,12 +201,14 @@ class EmbeddingWorker(
 
 
                     // ==================================
-                    // MARK AS VERIFIED
+                    // MARK AS EMBEDDED
                     // ==================================
                     //
-                    // This happens ONLY after the
-                    // embedding has been successfully
-                    // saved.
+                    // IMPORTANT:
+                    //
+                    // We only mark the ticket as EMBEDDED
+                    // after the vector has successfully
+                    // been saved to PostgreSQL.
                     //
 
                     TicketRepository.markEmbeddingVerified(
@@ -200,7 +234,9 @@ class EmbeddingWorker(
                     )
 
                     println(
-                        "Status : VERIFIED (1)"
+                        "Status : " +
+                                EmbeddingStatus.EMBEDDED +
+                                " (1)"
                     )
                 }
 
@@ -209,6 +245,7 @@ class EmbeddingWorker(
                     failed++
 
 
+                    println()
                     println(
                         "❌ Embedding failed : " +
                                 ticket.ticketId
@@ -219,26 +256,77 @@ class EmbeddingWorker(
                                 exception.message
                     )
 
+
+                    // ==================================
+                    // INCREMENT ATTEMPT COUNT
+                    // ==================================
+
+                    val attempts =
+                        TicketRepository
+                            .incrementEmbeddingAttempts(
+                                ticket.ticketId
+                            )
+
+
                     println(
-                        "Status : PENDING (0)"
+                        "Embedding Attempts : " +
+                                attempts
                     )
 
-                    /*
-                     * IMPORTANT:
-                     *
-                     * We intentionally DO NOT call
-                     *
-                     * markEmbeddingVerified()
-                     *
-                     * here.
-                     *
-                     * Therefore the ticket remains:
-                     *
-                     * embedding_verified = 0
-                     *
-                     * and will be retried during
-                     * the next worker cycle.
-                     */
+
+                    // ==================================
+                    // DECIDE WHETHER TO RETRY
+                    // ==================================
+
+                    if (
+                        attempts >=
+                        maxEmbeddingAttempts
+                    ) {
+
+                        // --------------------------------
+                        // SECOND FAILURE
+                        // --------------------------------
+
+                        TicketRepository
+                            .markEmbeddingFailed(
+                                ticket.ticketId
+                            )
+
+                        movedToFailed++
+
+
+                        println(
+                            "Status : " +
+                                    EmbeddingStatus.FAILED +
+                                    " (2)"
+                        )
+
+                        println(
+                            "Maximum attempts reached."
+                        )
+
+                        println(
+                            "Worker will skip this ticket " +
+                                    "in future cycles."
+                        )
+
+                    } else {
+
+                        // --------------------------------
+                        // FIRST FAILURE
+                        // --------------------------------
+
+                        println(
+                            "Status : " +
+                                    EmbeddingStatus.PENDING +
+                                    " (0)"
+                        )
+
+                        println(
+                            "Ticket will be retried " +
+                                    "in the next worker cycle."
+                        )
+                    }
                 }
             }
 
@@ -247,6 +335,10 @@ class EmbeddingWorker(
                 System.currentTimeMillis() -
                         startTime
 
+
+            // ==========================================
+            // CYCLE SUMMARY
+            // ==========================================
 
             println()
             println("===================================")
@@ -264,8 +356,13 @@ class EmbeddingWorker(
             )
 
             println(
-                "Failed : " +
+                "Failed Attempts : " +
                         failed
+            )
+
+            println(
+                "Moved To FAILED : " +
+                        movedToFailed
             )
 
             println(
@@ -278,6 +375,14 @@ class EmbeddingWorker(
         }
 
         catch (exception: Exception) {
+
+            /*
+             * This catches unexpected worker-level
+             * errors.
+             *
+             * Individual ticket errors are already
+             * handled above.
+             */
 
             println(
                 "❌ Embedding Worker Error"
