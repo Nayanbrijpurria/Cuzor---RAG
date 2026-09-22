@@ -17,9 +17,9 @@ class TicketEmbeddingService {
 
         val text = buildString {
 
-            // ==========================================
+            // =========================================
             // CATEGORY
-            // ==========================================
+            // =========================================
 
             if (ticket.category.isNotBlank()) {
 
@@ -34,7 +34,9 @@ class TicketEmbeddingService {
             // ==========================================
 
             val cleanedTitle =
+
                 cleanTitle(ticket.title)
+
 
             if (cleanedTitle.isNotBlank()) {
 
@@ -143,14 +145,13 @@ class TicketEmbeddingService {
         text: String
     ): String {
 
+
         return text
             .replace("\r\n", "\n")
             .replace("\r", "\n")
             .replace(Regex("\n{3,}"), "\n\n")
             .trim()
     }
-
-
     /**
      * Extract only useful human conversation.
      *

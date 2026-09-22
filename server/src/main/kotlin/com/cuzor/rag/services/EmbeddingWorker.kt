@@ -215,7 +215,6 @@ class EmbeddingWorker(
                         ticket.ticketId
                     )
 
-
                     val ticketTime =
                         System.currentTimeMillis() -
                                 ticketStartTime
@@ -255,8 +254,6 @@ class EmbeddingWorker(
                         "Reason : " +
                                 exception.message
                     )
-
-
                     // ==================================
                     // INCREMENT ATTEMPT COUNT
                     // ==================================
@@ -364,6 +361,7 @@ class EmbeddingWorker(
                 "Moved To FAILED : " +
                         movedToFailed
             )
+
 
             println(
                 "Total Time : " +

@@ -26,6 +26,7 @@ object DatabaseFactory {
 
             isAutoCommit = false
 
+
             transactionIsolation =
                 "TRANSACTION_REPEATABLE_READ"
         }
@@ -101,7 +102,6 @@ object DatabaseFactory {
                     )
                     """.trimIndent()
                 )
-
                 // =====================================================
                 // HNSW VECTOR INDEX
                 // =====================================================
