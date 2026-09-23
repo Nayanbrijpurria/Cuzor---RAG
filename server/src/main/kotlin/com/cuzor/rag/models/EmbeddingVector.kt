@@ -1,4 +1,6 @@
 package com.cuzor.rag.models
+// This file is used to store the embedding vector for a ticket.
+// It is used to store the ticket ID and the embedding vector as a float array.
 
 data class EmbeddingVector(
 

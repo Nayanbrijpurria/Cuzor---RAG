@@ -5,6 +5,8 @@ import com.cuzor.rag.models.EmbeddingVector
 import com.cuzor.rag.models.Ticket
 import com.cuzor.rag.repository.EmbeddingRepository
 
+// This file is responsible for generating embeddings for tickets and saving them to the database.
+
 class TicketEmbeddingService {
 
     private val embeddingService =

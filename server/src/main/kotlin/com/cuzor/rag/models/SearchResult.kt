@@ -1,5 +1,6 @@
 package com.cuzor.rag.models
 
+
 import kotlinx.serialization.Serializable
 
 @Serializable

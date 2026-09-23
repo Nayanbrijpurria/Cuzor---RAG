@@ -13,7 +13,9 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.minutes
 
-
+// This file working is that it is responsible for running a background worker that processes pending tickets and generates embeddings for them.
+// The worker runs at a configurable interval and processes tickets in batches.
+// It handles errors and retries failed tickets up to a maximum number of attempts.
 class EmbeddingWorker(
     private val config: AppConfig
 ) {

@@ -1,4 +1,7 @@
 package com.cuzor.rag.models
+// This file defines the EmbeddingStatus enum class, which represents the status of an embedding operation.
+// It has three possible values: PENDING, EMBEDDED, and FAILED. Each value is associated with an integer code.
+// The companion object provides a method to retrieve an EmbeddingStatus from its code.
 
 enum class EmbeddingStatus(
     val code: Int

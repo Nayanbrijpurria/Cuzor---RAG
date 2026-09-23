@@ -3,6 +3,8 @@ package com.cuzor.rag.repository
 import com.cuzor.rag.models.EmbeddingVector
 import org.jetbrains.exposed.sql.transactions.transaction
 
+// This file is responsible for saving and searching embeddings in the PostgreSQL database using the pgvector extension.
+
 object EmbeddingRepository {
 
     /**
@@ -40,6 +42,7 @@ object EmbeddingRepository {
             )
         }
     }
+
 
 
     /**

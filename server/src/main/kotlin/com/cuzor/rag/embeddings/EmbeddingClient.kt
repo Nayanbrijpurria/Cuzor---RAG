@@ -14,6 +14,10 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
+// working(Bridge between kotlin and fast API)
+
+//Take text from Kotlin → send it to FastAPI → receive the embedding vector → give the vector back to Kotlin.
+
 object EmbeddingClient {
 
     private const val BASE_URL = "http://localhost:8000"

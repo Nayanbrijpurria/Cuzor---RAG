@@ -6,6 +6,11 @@ import com.cuzor.rag.models.RetrievedTicket
 import com.cuzor.rag.repository.EmbeddingRepository
 import com.cuzor.rag.repository.TicketRepository
 
+// This file is responsible for retrieving relevant tickets from the database based on a user query.
+// It uses embeddings to find similar tickets and categorizes them into high and low confidence matches.
+//it is connected with files: EmbeddingService.kt, EmbeddingRepository.kt, TicketRepository.kt, RetrievalResponse.kt, RetrievedTicket.kt
+//for the retrieval process. It first converts the user query into an embedding, then searches the database for similar tickets using the embedding. The results are categorized based on similarity scores and returned to the user.
+
 class RetrievalService {
 
     private val embeddingService =

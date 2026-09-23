@@ -8,6 +8,8 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
+// This file is responsible for interacting with the database for ticket-related operations.
+
 object TicketRepository {
 
     /*

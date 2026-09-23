@@ -1,5 +1,7 @@
 package com.cuzor.rag.models
-
+// this file defines the data class for a retrieved ticket,
+// which includes various properties such as ticket ID, creation date, state, category, urgency, customer information, message count, title, description, resolution, conversation, and similarity score.
+// The class is annotated with @Serializable to enable serialization and deserialization of instances of this class.
 import kotlinx.serialization.Serializable
 
 @Serializable
