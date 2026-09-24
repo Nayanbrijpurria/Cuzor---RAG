@@ -90,11 +90,4 @@ Added an **HNSW vector index** using `pgvector` for faster similarity search.
 
 ```sql
 USING hnsw (embedding vector_cosine_ops)
-
-
-
-
-
-
-2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
 ```
