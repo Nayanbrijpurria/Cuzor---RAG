@@ -35,8 +35,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updateThresholdLabels();
 
-});
+    loadEmbeddingHealth();
 
+});
 
 // ============================================================
 // CREATE "NUMBER OF TICKETS" CONTROL
@@ -1824,3 +1825,513 @@ document.addEventListener(
         }
     }
 );
+// ============================================================
+// EMBEDDING HEALTH
+// ============================================================
+//
+// These functions monitor the embedding pipeline.
+//
+// APIs:
+//
+// GET  /tickets/embedding/health
+// GET  /tickets/embedding/failed
+// POST /tickets/{ticketId}/embedding/retry
+//
+// ============================================================
+
+
+// ============================================================
+// LOAD EMBEDDING HEALTH
+// ============================================================
+
+async function loadEmbeddingHealth() {
+
+    try {
+
+        console.log(
+            "Loading embedding health..."
+        );
+
+
+        // ----------------------------------------------------
+        // GET HEALTH
+        // ----------------------------------------------------
+
+        const healthResponse =
+            await fetch(
+                "/tickets/embedding/health",
+                {
+                    method: "GET",
+
+                    headers: {
+                        "Accept":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        if (!healthResponse.ok) {
+
+            throw new Error(
+                `Health API returned HTTP ${healthResponse.status}`
+            );
+        }
+
+
+        const health =
+            await healthResponse.json();
+
+
+        console.log(
+            "Embedding health:",
+            health
+        );
+
+
+        // ----------------------------------------------------
+        // UPDATE HEALTH CARDS
+        // ----------------------------------------------------
+
+        const total =
+            getElement("totalTickets");
+
+        const embedded =
+            getElement("embeddedTickets");
+
+        const pending =
+            getElement("pendingTickets");
+
+        const failed =
+            getElement("failedTickets");
+
+
+        if (total) {
+
+            total.textContent =
+                health.total ?? 0;
+        }
+
+
+        if (embedded) {
+
+            embedded.textContent =
+                health.embedded ?? 0;
+        }
+
+
+        if (pending) {
+
+            pending.textContent =
+                health.pending ?? 0;
+        }
+
+
+        if (failed) {
+
+            failed.textContent =
+                health.failed ?? 0;
+        }
+
+
+        // ----------------------------------------------------
+        // LOAD FAILED TICKETS
+        // ----------------------------------------------------
+
+        await loadFailedEmbeddings();
+
+
+    } catch (error) {
+
+        console.error(
+            "Unable to load embedding health:",
+            error
+        );
+
+    }
+}
+
+
+// ============================================================
+// LOAD FAILED EMBEDDINGS
+// ============================================================
+
+async function loadFailedEmbeddings() {
+
+    try {
+
+        console.log(
+            "Loading failed embeddings..."
+        );
+
+
+        const response =
+            await fetch(
+                "/tickets/embedding/failed",
+                {
+                    method: "GET",
+
+                    headers: {
+                        "Accept":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `Failed embeddings API returned HTTP ${response.status}`
+            );
+        }
+
+
+        const failedTickets =
+            await response.json();
+
+
+        console.log(
+            "Failed embedding tickets:",
+            failedTickets
+        );
+
+
+        renderFailedEmbeddings(
+            Array.isArray(failedTickets)
+                ? failedTickets
+                : []
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Unable to load failed embeddings:",
+            error
+        );
+
+
+        renderFailedEmbeddings([]);
+    }
+}
+
+
+// ============================================================
+// RENDER FAILED EMBEDDINGS
+// ============================================================
+
+function renderFailedEmbeddings(
+    tickets
+) {
+
+    const container =
+        getElement(
+            "failedEmbeddingsList"
+        );
+
+
+    const count =
+        getElement(
+            "failedEmbeddingCount"
+        );
+
+
+    if (!container) {
+
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // UPDATE COUNT
+    // --------------------------------------------------------
+
+    if (count) {
+
+        count.textContent =
+            tickets.length;
+    }
+
+
+    // --------------------------------------------------------
+    // NO FAILED TICKETS
+    // --------------------------------------------------------
+
+    if (!tickets.length) {
+
+        container.innerHTML = `
+
+            <p class="no-failed-tickets">
+                No failed embeddings.
+            </p>
+
+        `;
+
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // RENDER FAILED TICKETS
+    // --------------------------------------------------------
+
+    container.innerHTML = "";
+
+
+    tickets.forEach(
+        ticket => {
+
+            const card =
+                createFailedEmbeddingCard(
+                    ticket
+                );
+
+
+            container.appendChild(
+                card
+            );
+        }
+    );
+}
+
+
+// ============================================================
+// CREATE FAILED EMBEDDING CARD
+// ============================================================
+
+function createFailedEmbeddingCard(
+    ticket
+) {
+
+    const card =
+        document.createElement("div");
+
+
+    card.className =
+        "failed-embedding-card";
+
+
+    const ticketId =
+        ticket.ticketId ||
+        "Unknown Ticket";
+
+
+    const title =
+        ticket.title &&
+        String(ticket.title).trim()
+            ? ticket.title
+            : "Untitled ticket";
+
+
+    const attempts =
+        ticket.embeddingAttempts ??
+        0;
+
+
+    card.innerHTML = `
+
+        <div class="failed-embedding-info">
+
+            <button
+                class="failed-embedding-id"
+                type="button"
+            >
+                ${escapeHtml(ticketId)}
+            </button>
+
+            <div class="failed-embedding-title">
+                ${escapeHtml(title)}
+            </div>
+
+        </div>
+
+
+        <div class="failed-embedding-meta">
+
+            <span class="failed-embedding-attempts">
+                ${attempts} attempts
+            </span>
+
+
+            <span class="failed-embedding-status">
+                FAILED
+            </span>
+
+
+            <button
+                class="retry-button"
+                type="button"
+            >
+                Retry
+            </button>
+
+        </div>
+
+    `;
+
+
+    // --------------------------------------------------------
+    // OPEN TICKET
+    // --------------------------------------------------------
+
+    const ticketButton =
+        card.querySelector(
+            ".failed-embedding-id"
+        );
+
+
+    if (ticketButton) {
+
+        ticketButton.addEventListener(
+            "click",
+            () => {
+
+                openTicket(
+                    ticketId
+                );
+            }
+        );
+    }
+
+
+    // --------------------------------------------------------
+    // RETRY EMBEDDING
+    // --------------------------------------------------------
+
+    const retryButton =
+        card.querySelector(
+            ".retry-button"
+        );
+
+
+    if (retryButton) {
+
+        retryButton.addEventListener(
+            "click",
+            event => {
+
+                event.stopPropagation();
+
+                retryEmbedding(
+                    ticketId,
+                    retryButton
+                );
+            }
+        );
+    }
+
+
+    return card;
+}
+
+
+// ============================================================
+// RETRY EMBEDDING
+// ============================================================
+
+async function retryEmbedding(
+    ticketId,
+    button
+) {
+
+    if (!ticketId) {
+
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // DISABLE BUTTON
+    // --------------------------------------------------------
+
+    if (button) {
+
+        button.disabled =
+            true;
+
+        button.textContent =
+            "Retrying...";
+    }
+
+
+    try {
+
+        console.log(
+            "Retrying embedding:",
+            ticketId
+        );
+
+
+        const response =
+            await fetch(
+                `/tickets/${encodeURIComponent(ticketId)}/embedding/retry`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Accept":
+                            "text/plain"
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+
+            throw new Error(
+                errorText ||
+                `HTTP ${response.status}`
+            );
+        }
+
+
+        const message =
+            await response.text();
+
+
+        console.log(
+            "Retry response:",
+            message
+        );
+
+
+        // ----------------------------------------------------
+        // REFRESH HEALTH
+        // ----------------------------------------------------
+
+        await loadEmbeddingHealth();
+
+
+    } catch (error) {
+
+        console.error(
+            "Embedding retry failed:",
+            error
+        );
+
+
+        alert(
+            "Unable to retry embedding.\n\n" +
+            "Ticket: " +
+            ticketId +
+            "\n\n" +
+            "Error: " +
+            error.message
+        );
+
+
+        if (button) {
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                "Retry";
+        }
+    }
+}

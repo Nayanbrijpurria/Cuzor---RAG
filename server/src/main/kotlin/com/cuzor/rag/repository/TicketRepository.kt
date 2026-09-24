@@ -7,6 +7,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import com.cuzor.rag.models.EmbeddingHealth
 
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
@@ -122,6 +123,137 @@ object TicketRepository {
             TicketTable
                 .selectAll()
                 .count()
+        }
+    }
+
+    /*
+ * =========================================================
+ * GET EMBEDDING HEALTH
+ * =========================================================
+ *
+ * Returns the current embedding status of all tickets.
+ *
+ * 0 = PENDING
+ * 1 = EMBEDDED
+ * 2 = FAILED
+ */
+    fun getEmbeddingHealth(): EmbeddingHealth {
+
+        return transaction {
+
+            val total =
+                TicketTable
+                    .selectAll()
+                    .count()
+
+            val pending =
+                TicketTable
+                    .selectAll()
+                    .where {
+                        TicketTable.embeddingVerified eq
+                                EmbeddingStatus.PENDING.code
+                    }
+                    .count()
+
+            val embedded =
+                TicketTable
+                    .selectAll()
+                    .where {
+                        TicketTable.embeddingVerified eq
+                                EmbeddingStatus.EMBEDDED.code
+                    }
+                    .count()
+
+            val failed =
+                TicketTable
+                    .selectAll()
+                    .where {
+                        TicketTable.embeddingVerified eq
+                                EmbeddingStatus.FAILED.code
+                    }
+                    .count()
+
+            EmbeddingHealth(
+                total = total,
+                pending = pending,
+                embedded = embedded,
+                failed = failed
+            )
+        }
+    }
+
+    /*
+ * =========================================================
+ * FIND FAILED EMBEDDING TICKETS
+ * =========================================================
+ *
+ * Returns tickets that reached:
+ *
+ * embedding_verified = 2
+ *
+ * These tickets have failed embedding twice and are
+ * therefore excluded from the normal embedding Flow.
+ */
+    fun findFailedEmbeddingTickets(): List<Ticket> {
+
+        return transaction {
+
+            TicketTable
+                .selectAll()
+                .where {
+                    TicketTable.embeddingVerified eq
+                            EmbeddingStatus.FAILED.code
+                }
+                .map {
+
+                    Ticket(
+
+                        ticketId =
+                            it[TicketTable.ticketId],
+
+                        created =
+                            it[TicketTable.created],
+
+                        closedAt =
+                            it[TicketTable.closedAt],
+
+                        state =
+                            it[TicketTable.state],
+
+                        category =
+                            it[TicketTable.category],
+
+                        urgency =
+                            it[TicketTable.urgency],
+
+                        customerName =
+                            it[TicketTable.customerName],
+
+                        customerPhone =
+                            it[TicketTable.customerPhone],
+
+                        messageCount =
+                            it[TicketTable.messageCount],
+
+                        title =
+                            it[TicketTable.title],
+
+                        description =
+                            it[TicketTable.description],
+
+                        resolution =
+                            it[TicketTable.resolution],
+
+                        conversation =
+                            it[TicketTable.conversation],
+
+                        embeddingVerified =
+                            it[TicketTable.embeddingVerified],
+
+                        embeddingAttempts =
+                            it[TicketTable.embeddingAttempts]
+                    )
+                }
         }
     }
 
@@ -244,7 +376,6 @@ object TicketRepository {
                     emit(ticket)
                 }
             }
-
             delay(intervalMinutes.minutes)
         }
     }

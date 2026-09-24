@@ -329,6 +329,160 @@
         <!-- ==========================================
              RESULTS
              ========================================== -->
+        <!-- ==========================================
+     EMBEDDING HEALTH
+     ========================================== -->
+
+        <section
+                id="embeddingHealthSection"
+                class="embedding-health-section"
+        >
+
+            <div class="results-header">
+
+                <div>
+
+                    <p class="eyebrow">
+                        EMBEDDING HEALTH
+                    </p>
+
+                    <h3>
+                        RAG Pipeline Status
+                    </h3>
+
+                </div>
+
+                <button
+                        id="refreshEmbeddingHealth"
+                        class="refresh-button"
+                        onclick="loadEmbeddingHealth()"
+                >
+                    Refresh
+                </button>
+
+            </div>
+
+
+            <!-- ======================================
+                 HEALTH CARDS
+                 ====================================== -->
+
+            <div class="embedding-health-grid">
+
+                <!-- TOTAL -->
+
+                <div class="health-card">
+
+                    <span class="health-label">
+                        Total Tickets
+                    </span>
+
+                    <strong
+                            id="totalTickets"
+                            class="health-value"
+                    >
+                        0
+                    </strong>
+
+                </div>
+
+
+                <!-- EMBEDDED -->
+
+                <div class="health-card">
+
+                    <span class="health-label">
+                        Embedded
+                    </span>
+
+                    <strong
+                            id="embeddedTickets"
+                            class="health-value"
+                    >
+                        0
+                    </strong>
+
+                </div>
+
+
+                <!-- PENDING -->
+
+                <div class="health-card">
+
+                    <span class="health-label">
+                        Pending
+                    </span>
+
+                    <strong
+                            id="pendingTickets"
+                            class="health-value"
+                    >
+                        0
+                    </strong>
+
+                </div>
+
+
+                <!-- FAILED -->
+
+                <div class="health-card failed">
+
+                    <span class="health-label">
+                        Failed
+                    </span>
+
+                    <strong
+                            id="failedTickets"
+                            class="health-value"
+                    >
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- ======================================
+                 FAILED EMBEDDINGS
+                 ====================================== -->
+
+            <div
+                    id="failedEmbeddingsSection"
+                    class="failed-embeddings-section"
+            >
+
+                <div class="section-heading">
+
+                    <div
+                            class="confidence-indicator low"
+                    ></div>
+
+                    <h4>
+                        Failed Embeddings
+                    </h4>
+
+                    <span id="failedEmbeddingCount">
+                        0
+                    </span>
+
+                </div>
+
+
+                <div
+                        id="failedEmbeddingsList"
+                        class="failed-embeddings-list"
+                >
+
+                    <p class="no-failed-tickets">
+                        No failed embeddings.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
 
         <section
                 id="resultsSection"

@@ -779,3 +779,226 @@ button {
     color: #9aa3b2;
     font-style: italic;
 }
+
+/* =========================
+   EMBEDDING HEALTH
+========================= */
+
+.embedding-health-section {
+    max-width: 1100px;
+    margin: 32px auto 0;
+}
+
+.embedding-health-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 13px;
+    margin-bottom: 30px;
+}
+
+.health-card {
+    padding: 18px;
+    background: white;
+    border: 1px solid #e2e6ee;
+    border-radius: 13px;
+}
+
+.health-label {
+    display: block;
+    color: #7a8495;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.health-value {
+    display: block;
+    margin-top: 9px;
+    color: #172033;
+    font-size: 25px;
+    font-weight: 750;
+}
+
+.health-card.failed {
+    border-color: #f1d5d5;
+}
+
+.health-card.failed .health-value {
+    color: #b42318;
+}
+
+
+/* =========================
+   REFRESH BUTTON
+========================= */
+
+.refresh-button {
+    border: 1px solid #e2e6ee;
+    border-radius: 8px;
+    padding: 8px 12px;
+    background: white;
+    color: #374151;
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.refresh-button:hover {
+    background: #f5f7fb;
+}
+
+
+/* =========================
+   FAILED EMBEDDINGS
+========================= */
+
+.failed-embeddings-section {
+    margin-top: 10px;
+}
+
+.failed-embeddings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.failed-embedding-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 15px 17px;
+    background: white;
+    border: 1px solid #e2e6ee;
+    border-radius: 12px;
+}
+
+.failed-embedding-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.failed-embedding-id {
+    border: none;
+    background: transparent;
+    padding: 0;
+    color: #374151;
+    font-size: 12px;
+    font-weight: 750;
+    text-align: left;
+}
+
+.failed-embedding-id:hover {
+    text-decoration: underline;
+}
+
+.failed-embedding-title {
+    margin-top: 5px;
+    overflow: hidden;
+    color: #697386;
+    font-size: 12px;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.failed-embedding-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.failed-embedding-attempts {
+    padding: 5px 8px;
+    border-radius: 7px;
+    background: #fff5df;
+    color: #a16207;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.failed-embedding-status {
+    padding: 5px 8px;
+    border-radius: 7px;
+    background: #fdecec;
+    color: #b42318;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.retry-button {
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    background: #111827;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.retry-button:hover {
+    background: #263244;
+}
+
+.retry-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.no-failed-tickets {
+    padding: 18px;
+    background: white;
+    border: 1px dashed #d5dbe5;
+    border-radius: 12px;
+    color: #7a8495;
+    font-size: 13px;
+    text-align: center;
+}
+
+
+/* =========================
+   EMBEDDING HEALTH RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+
+    .embedding-health-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .failed-embedding-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .failed-embedding-meta {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 650px) {
+
+    .embedding-health-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .embedding-health-section {
+        margin-top: 25px;
+    }
+
+    .results-header {
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .failed-embedding-meta {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .retry-button {
+        width: 100%;
+    }
+}

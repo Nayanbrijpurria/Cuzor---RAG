@@ -40,6 +40,7 @@ import com.cuzor.rag.models.Ticket
 //
 // first failure  → PENDING
 // second failure → FAILED
+
 class EmbeddingWorker(
     private val config: AppConfig
 ) {
@@ -121,6 +122,7 @@ class EmbeddingWorker(
         )
 
         println(
+
             "Current Status : " +
                     EmbeddingStatus.fromCode(
                         ticket.embeddingVerified
