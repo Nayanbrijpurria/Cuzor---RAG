@@ -89,6 +89,7 @@ class EmbeddingModel:
         input_ids_array = np.asarray(
             [input_ids],
             dtype=np.int64
+
         )
 
         attention_mask_array = np.asarray(

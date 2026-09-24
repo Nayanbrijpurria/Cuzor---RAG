@@ -8,6 +8,12 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlin.time.Duration.Companion.minutes
+import kotlinx.coroutines.isActive
 // This file is responsible for interacting with the database for ticket-related operations.
 
 object TicketRepository {
@@ -203,6 +209,45 @@ object TicketRepository {
         }
     }
 
+
+    //----------FLOW----------------
+
+    // This function returns a Flow of pending tickets for embedding.
+    // It continuously checks for pending tickets at specified intervals and emits them one by one.
+
+    fun pendingEmbeddingFlow(
+        batchSize: Int = 50,
+        intervalMinutes: Long
+    ): Flow<Ticket> = flow {
+
+        while (currentCoroutineContext().isActive) {
+
+            val pendingTickets =
+                findPendingEmbeddingTickets(batchSize)
+
+            if (pendingTickets.isEmpty()) {
+
+                println("No pending tickets found.")
+
+            } else {
+
+                println(
+                    "Flow found ${pendingTickets.size} pending ticket(s)."
+                )
+
+                pendingTickets.forEach { ticket ->
+
+                    println(
+                        "Flow emitting ticket: ${ticket.ticketId}"
+                    )
+
+                    emit(ticket)
+                }
+            }
+
+            delay(intervalMinutes.minutes)
+        }
+    }
 
     /*
      * =========================================================

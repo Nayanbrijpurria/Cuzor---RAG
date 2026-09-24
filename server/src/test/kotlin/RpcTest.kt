@@ -37,3 +37,4 @@ class RpcTest {
         assertEquals("Server: client", response)
     }
 }
+

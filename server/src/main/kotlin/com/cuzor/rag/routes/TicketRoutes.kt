@@ -26,7 +26,7 @@ fun Route.ticketRoutes() {
 
         get {
             call.respond(
-                       ticketService.getTopFiveTickets()
+                ticketService.getTopFiveTickets()
             )
         }
 
