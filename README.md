@@ -75,7 +75,7 @@ Replaced the manual polling loop in `EmbeddingWorker` with Kotlin `Flow`.
 The worker repeatedly checked the database using a loop:
 
 
-### Chunking
+### 3. Chunking
 
 Added **3000-token chunking** for large tickets.
 
@@ -84,7 +84,7 @@ Added **3000-token chunking** for large tickets.
 - Chunk embeddings are combined to create the final ticket embedding.
 - This prevents very large tickets from causing model/ONNX input errors.
 
-### Vector Indexing
+### 4. Vector Indexing
 
 Added an **HNSW vector index** using `pgvector` for faster similarity search.
 
