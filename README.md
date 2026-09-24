@@ -74,14 +74,6 @@ Replaced the manual polling loop in `EmbeddingWorker` with Kotlin `Flow`.
 
 The worker repeatedly checked the database using a loop:
 
-```text
-Find PENDING tickets
-        ↓
-Process tickets
-        ↓
-Wait
-        ↓
-Repeat
 
 ### Chunking
 
@@ -98,6 +90,8 @@ Added an **HNSW vector index** using `pgvector` for faster similarity search.
 
 ```sql
 USING hnsw (embedding vector_cosine_ops)
+
+
 
 
 
