@@ -83,18 +83,24 @@ Wait
         ↓
 Repeat
 
-## Building & Running
+### Chunking
 
-To build or run the project, use one of the following tasks:
+Added **3000-token chunking** for large tickets.
 
-| Task                      | Description  |
-|---------------------------|--------------|
-| `./gradlew :server:build` | Build the project |
-| `./gradlew :server:run`   | Run the server |
+- Large ticket text is split into chunks of up to 3000 tokens.
+- Each chunk is embedded separately.
+- Chunk embeddings are combined to create the final ticket embedding.
+- This prevents very large tickets from causing model/ONNX input errors.
 
-If the server starts successfully, you'll see the following output:
+### Vector Indexing
 
-```
-2024-12-04 14:32:45.584 [main] INFO  Application - Application started in 0.303 seconds.
+Added an **HNSW vector index** using `pgvector` for faster similarity search.
+
+```sql
+USING hnsw (embedding vector_cosine_ops)
+
+
+
+
 2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
 ```
