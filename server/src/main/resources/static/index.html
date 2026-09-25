@@ -53,15 +53,21 @@
         <div class="sidebar-section">
 
             <p class="sidebar-label">
-                SEARCH
+                NAVIGATION
             </p>
-
 
             <button
                     class="new-search"
                     onclick="resetSearch()"
             >
                 + New Search
+            </button>
+
+            <button
+                    class="new-search"
+                    onclick="window.location.href='/failed-tickets.html'"
+            >
+                Failed Tickets
             </button>
 
         </div>
@@ -443,47 +449,7 @@
             </div>
 
 
-            <!-- ======================================
-                 FAILED EMBEDDINGS
-                 ====================================== -->
-
-            <div
-                    id="failedEmbeddingsSection"
-                    class="failed-embeddings-section"
-            >
-
-                <div class="section-heading">
-
-                    <div
-                            class="confidence-indicator low"
-                    ></div>
-
-                    <h4>
-                        Failed Embeddings
-                    </h4>
-
-                    <span id="failedEmbeddingCount">
-                        0
-                    </span>
-
-                </div>
-
-
-                <div
-                        id="failedEmbeddingsList"
-                        class="failed-embeddings-list"
-                >
-
-                    <p class="no-failed-tickets">
-                        No failed embeddings.
-                    </p>
-
-                </div>
-
-            </div>
-
         </section>
-
         <section
                 id="resultsSection"
                 class="results-section hidden"

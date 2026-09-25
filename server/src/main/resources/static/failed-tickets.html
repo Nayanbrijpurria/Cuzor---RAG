@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Failed Tickets - Cuzor RAG</title>
+
+    <link
+            rel="stylesheet"
+            href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+    <!-- ==========================================
+         SIDEBAR
+         ========================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                C
+            </div>
+
+            <div>
+
+                <h1>Cuzor</h1>
+
+                <span>
+                    RAG Search
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="sidebar-section">
+
+            <p class="sidebar-label">
+                NAVIGATION
+            </p>
+
+
+            <button
+                    class="new-search"
+                    type="button"
+                    onclick="window.location.href='/'"
+            >
+                Dashboard
+            </button>
+
+
+            <button
+                    class="new-search"
+                    type="button"
+                    onclick="window.location.href='/failed-tickets.html'"
+            >
+                Failed Tickets
+            </button>
+
+        </div>
+
+
+        <div class="sidebar-info">
+
+            <div class="info-title">
+                Vector Search
+            </div>
+
+            <div class="info-text">
+                PostgreSQL + pgvector
+            </div>
+
+
+            <div class="status">
+
+                <span class="status-dot"></span>
+
+                System Online
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ==========================================
+         MAIN CONTENT
+         ========================================== -->
+
+    <main class="main">
+
+        <!-- HEADER -->
+
+        <header class="header">
+
+            <div>
+
+                <p class="eyebrow">
+                    RAG PIPELINE
+                </p>
+
+                <h2>
+                    Failed Tickets
+                </h2>
+
+                <p class="header-description">
+                    Tickets whose embeddings could not be generated
+                    after the maximum number of attempts.
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <!-- ==========================================
+             FAILED TICKETS
+             ========================================== -->
+
+        <section class="results-section">
+
+            <div class="results-header">
+
+                <div>
+
+                    <p class="eyebrow">
+                        FAILED EMBEDDINGS
+                    </p>
+
+                    <h3>
+                        Tickets Requiring Attention
+                    </h3>
+
+                </div>
+
+
+                <div
+                        id="failedEmbeddingCount"
+                        class="result-count"
+                >
+                    0 tickets
+                </div>
+
+            </div>
+
+
+            <!-- ======================================
+                 FAILED TICKET LIST
+                 ====================================== -->
+
+            <div
+                    id="failedEmbeddingsList"
+                    class="failed-embeddings-list"
+            >
+
+                <div class="no-failed-tickets">
+                    Loading failed tickets...
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==========================================
+             EMPTY STATE
+             ========================================== -->
+
+        <section
+                id="failedEmptyState"
+                class="empty-state hidden"
+        >
+
+            <div class="empty-icon">
+                ✓
+            </div>
+
+            <h3>
+                No Failed Tickets
+            </h3>
+
+            <p>
+                All tickets have been successfully embedded.
+            </p>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- ==============================================
+     TICKET DETAIL MODAL
+     ============================================== -->
+
+<div
+        id="ticketModal"
+        class="modal hidden"
+>
+
+    <div
+            class="modal-overlay"
+            onclick="closeTicket()"
+    ></div>
+
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <div>
+
+                <p class="eyebrow">
+                    TICKET DETAILS
+                </p>
+
+                <h2 id="modalTicketId">
+                    Ticket
+                </h2>
+
+            </div>
+
+
+            <button
+                    class="close-button"
+                    type="button"
+                    onclick="closeTicket()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div
+                id="modalBody"
+                class="modal-body"
+        >
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="failed-tickets.js"></script>
+
+</body>
+
+</html>
