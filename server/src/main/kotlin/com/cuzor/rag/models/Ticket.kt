@@ -31,6 +31,7 @@ data class Ticket(
 
     val conversation: String,
 
+    val product: String? = null,
     // =====================================================
     // EMBEDDING STATUS
     //

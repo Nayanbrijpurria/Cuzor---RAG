@@ -195,5 +195,35 @@ fun Route.ticketRoutes() {
                 ticket
             )
         }
+        get("/analytics/products") {
+
+            val analytics =
+                TicketRepository.getProductAnalytics()
+
+            call.respond(analytics)
+        }
+        //------this endpoint is to check what are the unknown products.
+        get("/analytics/products/unknown") {
+
+            val limit =
+                call.request.queryParameters["limit"]
+                    ?.toIntOrNull()
+                    ?: 20
+
+            val tickets =
+                TicketRepository.getUnknownProductTickets(limit)
+
+            call.respond(tickets)
+        }
+        //-----------------------------------
+        post("/analytics/products/backfill") {
+
+            println("Starting product backfill...")
+
+            val result =
+                TicketRepository.backfillProducts()
+
+            call.respond(result)
+        }
     }
 }

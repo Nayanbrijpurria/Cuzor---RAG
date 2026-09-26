@@ -449,6 +449,63 @@
             </div>
 
 
+
+        </section>
+        <!-- ==========================================
+     PRODUCT SUPPORT ANALYTICS
+     ========================================== -->
+
+        <section class="product-analytics-section">
+
+            <div class="section-header">
+
+                <div>
+                    <p class="section-label">BI ANALYTICS</p>
+
+                    <h2>Product Support Analytics</h2>
+
+                    <p class="section-description">
+                        See which products generate the most customer support queries.
+                    </p>
+                </div>
+
+                <button
+                        class="refresh-button"
+                        type="button"
+                        onclick="loadProductAnalytics()">
+                    Refresh
+                </button>
+
+            </div>
+
+
+            <!-- PRODUCT ANALYTICS LIST -->
+
+            <div
+                    id="productAnalyticsList"
+                    class="product-analytics-list">
+
+                <div class="product-analytics-loading">
+                    Loading product analytics...
+                </div>
+
+            </div>
+
+
+            <!-- EMPTY STATE -->
+
+            <div
+                    id="productAnalyticsEmpty"
+                    class="product-analytics-empty hidden">
+
+                <p>No product analytics available yet.</p>
+
+                <span>
+            Product information will appear here once tickets have been classified.
+        </span>
+
+            </div>
+
         </section>
         <section
                 id="resultsSection"

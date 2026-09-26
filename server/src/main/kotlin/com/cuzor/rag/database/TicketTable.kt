@@ -30,6 +30,7 @@ object TicketTable : Table("tickets") {
 
     val conversation = text("conversation")
 
+    val product = varchar("product", 100).nullable()
     // =====================================================
     // EMBEDDING STATUS
     //

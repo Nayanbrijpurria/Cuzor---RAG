@@ -1024,7 +1024,6 @@ function renderTicketDetails(
             ticket.ticketId || "Ticket";
     }
 
-
     if (!modalBody) {
         return;
     }
@@ -1267,7 +1266,6 @@ function formatConversation(
             .replace(/\r\n/g, "\n")
             .replace(/\r/g, "\n")
             .split("\n");
-
 
     return lines
         .map(
@@ -2128,7 +2126,6 @@ function createFailedEmbeddingCard(
         ticket.embeddingAttempts ??
         0;
 
-
     card.innerHTML = `
 
         <div class="failed-embedding-info">
@@ -2190,6 +2187,7 @@ function createFailedEmbeddingCard(
                 openTicket(
                     ticketId
                 );
+
             }
         );
     }
@@ -2334,4 +2332,219 @@ async function retryEmbedding(
                 "Retry";
         }
     }
+}
+
+//--------------------------
+
+// ==========================================
+// PRODUCT SUPPORT ANALYTICS
+// ==========================================
+
+async function loadProductAnalytics() {
+
+    const container =
+        document.getElementById("productAnalyticsList");
+
+    const emptyState =
+        document.getElementById("productAnalyticsEmpty");
+
+
+    if (!container) {
+        return;
+    }
+
+
+    try {
+
+        container.innerHTML = `
+            <div class="product-analytics-loading">
+                Loading product analytics...
+            </div>
+        `;
+
+
+        const response =
+            await fetch("/tickets/analytics/products", {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+        }
+
+
+        const products =
+            await response.json();
+
+
+        if (!Array.isArray(products)) {
+
+            throw new Error(
+                "Invalid product analytics response"
+            );
+        }
+
+
+        // ==========================================
+        // NO DATA
+        // ==========================================
+
+        if (products.length === 0) {
+
+            container.innerHTML = "";
+
+            if (emptyState) {
+                emptyState.classList.remove("hidden");
+            }
+
+            return;
+        }
+
+
+        if (emptyState) {
+            emptyState.classList.add("hidden");
+        }
+
+
+        renderProductAnalytics(
+            products,
+            container
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Failed to load product analytics:",
+            error
+        );
+
+
+        container.innerHTML = `
+            <div class="product-analytics-error">
+                Unable to load product analytics.
+            </div>
+        `;
+
+    }
+}
+
+
+// ==========================================
+// RENDER PRODUCT ANALYTICS
+// ==========================================
+
+function renderProductAnalytics(
+    products,
+    container
+) {
+
+    container.innerHTML = "";
+
+
+    // Find the largest count.
+    // We use this to calculate the progress-bar width.
+
+    const maxCount =
+        Math.max(
+            ...products.map(
+                product => product.queryCount
+            )
+        );
+
+
+    products.forEach(
+        (product, index) => {
+
+            const card =
+                createProductAnalyticsCard(
+                    product,
+                    index,
+                    maxCount
+                );
+
+            container.appendChild(card);
+        }
+    );
+}
+
+
+// ==========================================
+// CREATE PRODUCT CARD
+// ==========================================
+
+function createProductAnalyticsCard(
+    product,
+    index,
+    maxCount
+) {
+
+    const card =
+        document.createElement("div");
+
+
+    card.className =
+        "product-analytics-card";
+
+
+    const productName =
+        product.product || "Unknown Product";
+
+
+    const queryCount =
+        Number(product.queryCount) || 0;
+
+
+    const percentage =
+        maxCount > 0
+            ? (queryCount / maxCount) * 100
+            : 0;
+
+
+    card.innerHTML = `
+
+        <div class="product-analytics-info">
+
+            <div class="product-analytics-rank">
+                ${index + 1}
+            </div>
+
+
+            <div class="product-analytics-name">
+                ${escapeHtml(productName)}
+            </div>
+
+        </div>
+
+
+        <div class="product-analytics-bar-container">
+
+            <div
+                class="product-analytics-bar"
+                style="width: ${percentage}%;">
+            </div>
+
+        </div>
+
+
+        <div class="product-analytics-count">
+
+            ${queryCount.toLocaleString()}
+
+            <span>
+                ${queryCount === 1 ? "query" : "queries"}
+            </span>
+
+        </div>
+
+    `;
+
+
+    return card;
 }

@@ -8,6 +8,9 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import com.cuzor.rag.models.EmbeddingHealth
+import com.cuzor.rag.models.ProductAnalytics
+import com.cuzor.rag.services.ProductExtractor
+import com.cuzor.rag.models.UnknownProductTicket
 
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
@@ -67,6 +70,7 @@ object TicketRepository {
 
                     it[conversation] = ticket.conversation
 
+                    it[product] = ticket.product
                     // New ticket → PENDING
                     it[embeddingVerified] =
                         EmbeddingStatus.PENDING.code
@@ -246,6 +250,8 @@ object TicketRepository {
 
                         conversation =
                             it[TicketTable.conversation],
+
+                        product = it[TicketTable.product],
 
                         embeddingVerified =
                             it[TicketTable.embeddingVerified],
@@ -735,6 +741,186 @@ object TicketRepository {
                     )
                 }
                 .firstOrNull()
+        }
+    }
+
+    /*
+ * =========================================================
+ * BACKFILL PRODUCT INFORMATION
+ * =========================================================
+ *
+ * Used for existing tickets that were imported before
+ * product extraction was added.
+ *
+ * This ONLY updates the product column.
+ * It does NOT touch embeddings.
+ */
+
+    fun backfillProducts(): Map<String, Long> {
+
+        return transaction {
+
+            val tickets =
+                TicketTable
+                    .selectAll()
+                    .map {
+                        Triple(
+                            it[TicketTable.ticketId],
+                            it[TicketTable.conversation],
+                            it[TicketTable.product]
+                        )
+                    }
+
+            var processed = 0L
+            var miniUps = 0L
+            var pulseGaN = 0L
+            var unknown = 0L
+
+            tickets.forEach { (ticketId, conversation, existingProduct) ->
+
+                /*
+                 * If product is already known,
+                 * don't process it again.
+                 */
+                if (!existingProduct.isNullOrBlank()) {
+                    processed++
+                    return@forEach
+                }
+
+                val product =
+                    ProductExtractor.extract(conversation)
+
+                if (product != null) {
+
+                    TicketTable.update(
+                        where = {
+                            TicketTable.ticketId eq ticketId
+                        }
+                    ) {
+                        it[TicketTable.product] = product
+                    }
+
+                    when (product) {
+
+                        "Mini UPS" -> {
+                            miniUps++
+                        }
+
+                        "Pulse GaN Charger" -> {
+                            pulseGaN++
+                        }
+                    }
+
+                } else {
+
+                    unknown++
+                }
+
+                processed++
+
+                if (processed % 500 == 0L) {
+
+                    println(
+                        "Product backfill progress: " +
+                                "$processed / ${tickets.size}"
+                    )
+                }
+            }
+
+            println("===================================")
+            println("PRODUCT BACKFILL COMPLETED")
+            println("===================================")
+            println("Processed: $processed")
+            println("Mini UPS: $miniUps")
+            println("Pulse GaN Charger: $pulseGaN")
+            println("Unknown: $unknown")
+            println("===================================")
+
+            mapOf(
+                "processed" to processed,
+                "miniUps" to miniUps,
+                "pulseGaNCharger" to pulseGaN,
+                "unknown" to unknown
+            )
+        }
+    }
+    //----------------
+    /*
+ * =========================================================
+ * GET UNKNOWN PRODUCT TICKETS
+ * =========================================================
+ *
+ * Returns tickets where product could not be identified.
+ *
+ * Used to inspect the actual conversation format and
+ * improve ProductExtractor using deterministic rules.
+ */
+
+    fun getUnknownProductTickets(
+        limit: Int = 20
+    ): List<UnknownProductTicket> {
+
+        val safeLimit =
+            limit.coerceIn(1, 100)
+
+        return transaction {
+
+            TicketTable
+                .selectAll()
+                .where {
+                    TicketTable.product.isNull()
+                }
+                .limit(safeLimit)
+                .map {
+
+                    UnknownProductTicket(
+
+                        ticketId =
+                            it[TicketTable.ticketId],
+
+                        title =
+                            it[TicketTable.title],
+
+                        conversation =
+                            it[TicketTable.conversation]
+                    )
+                }
+        }
+    }
+
+    //-------------
+
+    fun getProductAnalytics(): List<ProductAnalytics> {
+
+        return transaction {
+
+            exec(
+                """
+            SELECT
+                product,
+                COUNT(*) AS query_count
+            FROM tickets
+            WHERE product IS NOT NULL
+              AND TRIM(product) <> ''
+            GROUP BY product
+            ORDER BY query_count DESC
+            """.trimIndent()
+            ) { resultSet ->
+
+                val results = mutableListOf<ProductAnalytics>()
+
+                while (resultSet.next()) {
+
+                    results.add(
+                        ProductAnalytics(
+                            product = resultSet.getString("product"),
+                            queryCount = resultSet.getLong("query_count")
+                        )
+                    )
+                }
+
+                results
+            } ?: emptyList()
         }
     }
 }
