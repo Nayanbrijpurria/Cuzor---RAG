@@ -26,6 +26,14 @@ This project was created using the [Ktor Project Generator](https://start.ktor.i
 
 ✅ Tickets with low confidence and high confidence will be returned.
 
+## EMBEDDING STATUS.
+
+PENDING  = ticket is waiting to be embedded (0)
+EMBEDDED = embedding was successfully generated (1)
+FAILED   = embedding failed twice (2)
+SKIPPED  = ticket does not have messages/conversation (3)
+           so embedding is not required
+
 
 ## Some Screenshots.
 
