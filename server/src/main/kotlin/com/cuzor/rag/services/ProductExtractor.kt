@@ -20,7 +20,7 @@ object ProductExtractor {
                 line.substringAfter("CUSTOMER:")
                     .trim()
             }
-
+        
         for (message in customerMessages) {
 
             val normalized = normalize(message)
@@ -32,7 +32,7 @@ object ProductExtractor {
                 }
             }
         }
-
+       
         return null
     }
 
@@ -41,4 +41,5 @@ object ProductExtractor {
             .lowercase()
             .replace(Regex("[^a-z0-9]"), "")
     }
+    
 }

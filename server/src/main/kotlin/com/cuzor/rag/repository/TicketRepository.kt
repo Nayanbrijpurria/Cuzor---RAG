@@ -177,11 +177,21 @@ object TicketRepository {
                     }
                     .count()
 
+            val skipped =
+                TicketTable
+                    .selectAll()
+                    .where {
+                        TicketTable.embeddingVerified eq
+                                EmbeddingStatus.SKIPPED.code
+                    }
+                    .count()
+
             EmbeddingHealth(
                 total = total,
                 pending = pending,
                 embedded = embedded,
-                failed = failed
+                failed = failed,
+                skipped = skipped
             )
         }
     }
@@ -278,6 +288,61 @@ object TicketRepository {
      * FAILED tickets (2) are therefore ignored.
      */
 
+    /*
+ * =========================================================
+ * MARK EMPTY TICKETS AS SKIPPED
+ * =========================================================
+ *
+ * Tickets with message_count = 0 have no conversation
+ * to embed, so they do not need an embedding.
+ *
+ * PENDING → SKIPPED
+ */
+
+    fun markEmptyTicketsAsSkipped(): Int {
+
+        return transaction {
+
+            val emptyTickets =
+                TicketTable
+                    .selectAll()
+                    .where {
+                        TicketTable.messageCount eq 0
+                    }
+                    .map {
+                        Pair(
+                            it[TicketTable.ticketId],
+                            it[TicketTable.embeddingVerified]
+                        )
+                    }
+
+            var skippedCount = 0
+
+            emptyTickets.forEach { (ticketId, status) ->
+
+                if (status == EmbeddingStatus.PENDING.code) {
+
+                    val updatedRows =
+                        TicketTable.update(
+                            where = {
+                                TicketTable.ticketId eq ticketId
+                            }
+                        ) {
+
+                            it[TicketTable.embeddingVerified] =
+                                EmbeddingStatus.SKIPPED.code
+                        }
+
+                    if (updatedRows > 0) {
+                        skippedCount++
+                    }
+                }
+            }
+
+            skippedCount
+        }
+    }
+
     fun findPendingEmbeddingTickets(
         limit: Int = 50
     ): List<Ticket> {
@@ -297,7 +362,6 @@ object TicketRepository {
                 .map {
 
                     Ticket(
-
                         ticketId =
                             it[TicketTable.ticketId],
 
@@ -337,12 +401,18 @@ object TicketRepository {
                         conversation =
                             it[TicketTable.conversation],
 
+                        product =
+                            it[TicketTable.product],
+
                         embeddingVerified =
                             it[TicketTable.embeddingVerified],
 
                         embeddingAttempts =
                             it[TicketTable.embeddingAttempts]
                     )
+                }
+                .filter { ticket ->
+                    ticket.messageCount > 0
                 }
         }
     }
@@ -359,6 +429,18 @@ object TicketRepository {
     ): Flow<Ticket> = flow {
 
         while (currentCoroutineContext().isActive) {
+
+            // Tickets with no messages do not need embeddings.
+            // Mark them as SKIPPED before searching for pending work.
+            val skippedCount =
+                markEmptyTicketsAsSkipped()
+
+            if (skippedCount > 0) {
+
+                println(
+                    "Marked $skippedCount empty ticket(s) as SKIPPED."
+                )
+            }
 
             val pendingTickets =
                 findPendingEmbeddingTickets(batchSize)
