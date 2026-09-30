@@ -102,3 +102,8 @@ Added an **HNSW vector index** using `pgvector` for faster similarity search.
 ```sql
 USING hnsw (embedding vector_cosine_ops)
 ```
+
+### 5. Interval and Batch size
+
+After every 24 hours (1440 min), we will re-scan the database for new tickets or pending tickets
+The maximum batch size for processing those tickets will be 50.
