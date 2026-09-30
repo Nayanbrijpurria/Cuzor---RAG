@@ -1,5 +1,6 @@
 package com.cuzor
 
+
 import io.ktor.client.plugins.websocket.*
 import io.ktor.server.testing.*
 import kotlinx.rpc.krpc.ktor.client.Krpc
@@ -35,6 +36,7 @@ class RpcTest {
         val response = service.hello(Data("client"))
 
         assertEquals("Server: client", response)
+
+        ktorClient.close()
     }
 }
-

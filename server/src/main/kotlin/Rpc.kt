@@ -9,12 +9,17 @@ import kotlinx.rpc.krpc.serialization.json.json
 
 fun Application.configureRpc() {
     install(Krpc)
+
     routing {
         rpc("/api") {
             rpcConfig {
                 serialization {
                     json()
                 }
+            }
+
+            registerService<SampleService> {
+                SampleServiceImpl()
             }
         }
     }
