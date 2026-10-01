@@ -113,7 +113,7 @@ The maximum batch size for processing those tickets will be 50.
 
    ID ProcessName RAM_MB
    -- ----------- ------
-java        131.36 MB
-python      310.99 MB
+java(Ktor)        131.36 MB
+python(Embeddings)      310.99 MB
 Postgre     866.42 MB
 
