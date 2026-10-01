@@ -117,3 +117,5 @@ java(Ktor)        131.36 MB
 python(Embeddings)      310.99 MB
 Postgre     866.42 MB
 
+TOTAL = 1.2GB RAM Locally
+
