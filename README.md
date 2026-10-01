@@ -111,11 +111,10 @@ The maximum batch size for processing those tickets will be 50.
 
 ## RAM Usage (1yr TICKETS IMPORT ALL AT ONCE).
 
-Postgres_RAM_MB
----------------
-866.42
+   ID ProcessName RAM_MB
+   -- ----------- ------
+14656 java        131.36
+ 2784 python      310.99
+25064 python        0.52
+      Postgre     866.42
 
-EMBEDDING
-ID ProcessName  RAM_MB
--------------------
- (python)      681.04
