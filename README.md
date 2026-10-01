@@ -109,7 +109,7 @@ After every 24 hours (1440 min), we will re-scan the database for new tickets or
 The maximum batch size for processing those tickets will be 50.
 
 
-## RAM Usage.
+## RAM Usage (1yr TICKETS IMPORT ALL AT ONCE).
 
 Postgres_RAM_MB
 ---------------
