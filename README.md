@@ -109,7 +109,7 @@ After every 24 hours (1440 min), it will re-scan the database for new tickets or
 The maximum batch size for processing those tickets will be 50.
 
 
-## RAM Usage (1yr TICKETS IMPORT ALL AT ONCE).
+## RAM Usage (1yr TICKETS IMPORT).
 
    ID ProcessName RAM_MB
    -- ----------- ------
