@@ -42,10 +42,10 @@ SKIPPED  = ticket does not have messages/conversation (3)
 <img width="946" height="499" alt="Screenshot 2026-09-24 170817" src="https://github.com/user-attachments/assets/ef4c15a4-4c1a-46ed-ac65-fc403d6efd82" />
 
 
-<img width="1863" height="1011" alt="AdobeExpressPhotos_95fb17b683674f39a30f7f33ff002a9b_CopyEdited" src="https://github.com/user-attachments/assets/0d61c29f-102b-47eb-9692-91162445f700" />
-
-
 <img width="1858" height="1115" alt="AdobeExpressPhotos_056d8ddb96c04530bdf95e9044eefd94_CopyEdited" src="https://github.com/user-attachments/assets/0cbec6d6-77bb-422a-a929-9ee7a6bba368" />
+
+
+<img width="1365" height="375" alt="AdobeExpressPhotos_3c3eeb23c4ca48e2b6577c5b221ce216_CopyEdited" src="https://github.com/user-attachments/assets/48186fac-4241-4a52-bf44-70b6924722ff" />
 
 
 <img width="1893" height="1095" alt="AdobeExpressPhotos_ed144a72f6ff473abe4650ad6a05173a_CopyEdited" src="https://github.com/user-attachments/assets/55e7428f-3f54-463b-b09c-51d79a7804f9" />
