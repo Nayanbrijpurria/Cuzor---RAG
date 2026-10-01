@@ -118,4 +118,4 @@ Postgres_RAM_MB
 EMBEDDING
 ID ProcessName  RAM_MB
 -------------------
- python      681.04
+ (python)      681.04
