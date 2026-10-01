@@ -107,3 +107,15 @@ USING hnsw (embedding vector_cosine_ops)
 
 After every 24 hours (1440 min), we will re-scan the database for new tickets or pending tickets
 The maximum batch size for processing those tickets will be 50.
+
+
+## RAM Usage.
+
+Postgres_RAM_MB
+---------------
+866.42
+
+EMBEDDING
+ID ProcessName  RAM_MB
+-------------------
+ 2784 python      681.04
