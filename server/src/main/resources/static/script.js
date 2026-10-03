@@ -1238,6 +1238,18 @@ function createConversationSection(
 
             </div>
 
+            <div class="conversation-search-action">
+
+                <button
+                    type="button"
+                    class="search-related-button"
+                    onclick="searchRelatedTicketsFromConversation()"
+                >
+                    🔍 Search Related Tickets
+                </button>
+
+            </div>
+
         </div>
 
     `;
@@ -2488,7 +2500,6 @@ function createProductAnalyticsCard(
     const card =
         document.createElement("div");
 
-
     card.className =
         "product-analytics-card";
 
@@ -2547,4 +2558,87 @@ function createProductAnalyticsCard(
 
 
     return card;
+}
+
+// ============================================================
+// SEARCH RELATED TICKETS FROM CURRENT CONVERSATION
+// ============================================================
+
+function searchRelatedTicketsFromConversation() {
+
+    const modalBody =
+        getElement("modalBody");
+
+    const searchInput =
+        getElement("searchInput");
+
+
+    if (!modalBody || !searchInput) {
+
+        console.error(
+            "Unable to find modal body or search input."
+        );
+
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // Find the conversation box
+    // --------------------------------------------------------
+
+    const conversationBox =
+        modalBody.querySelector(
+            ".conversation-box"
+        );
+
+
+    if (!conversationBox) {
+
+        alert(
+            "No conversation is available for this ticket."
+        );
+
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // Extract only the conversation text
+    // --------------------------------------------------------
+
+    const conversation =
+        conversationBox.innerText.trim();
+
+
+    if (!conversation) {
+
+        alert(
+            "No conversation is available for this ticket."
+        );
+
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // Put conversation into search box
+    // --------------------------------------------------------
+
+    searchInput.value =
+        conversation;
+
+
+    // --------------------------------------------------------
+    // Close current ticket modal
+    // --------------------------------------------------------
+
+    closeTicket();
+
+
+    // --------------------------------------------------------
+    // Run RAG search automatically
+    // --------------------------------------------------------
+
+    searchTickets();
 }

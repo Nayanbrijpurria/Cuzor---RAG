@@ -16,7 +16,7 @@ object TicketTable : Table("tickets") {
 
     val urgency = integer("urgency")
 
-    val customerName = varchar("customer_name", 150)
+    val customerName = text("customer_name")
 
     val customerPhone = varchar("customer_phone", 30)
 

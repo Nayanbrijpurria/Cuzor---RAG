@@ -1,3 +1,4 @@
+
 package com.cuzor.rag
 
 import com.cuzor.rag.config.AppConfig
@@ -54,5 +55,6 @@ fun Application.module() {
     println("===================================")
     println("Cuzor RAG Application Started")
     println("Embedding Worker Started")
+
     println("===================================")
 }

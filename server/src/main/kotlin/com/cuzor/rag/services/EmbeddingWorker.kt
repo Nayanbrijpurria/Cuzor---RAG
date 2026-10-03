@@ -57,7 +57,6 @@ class EmbeddingWorker(
     // Maximum number of times a ticket will be attempted.
     private val maxEmbeddingAttempts = 2
 
-
     /**
      * Start the background embedding worker.
      */
@@ -76,6 +75,7 @@ class EmbeddingWorker(
             "Batch Size : " +
                     config.embeddingWorkerBatchSize
         )
+
 
         println(
             "Max Attempts : " +

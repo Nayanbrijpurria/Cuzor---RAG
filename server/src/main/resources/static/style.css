@@ -1195,3 +1195,61 @@ button {
     }
 
 }
+
+/* ============================================================
+   SEARCH RELATED TICKETS BUTTON
+   ============================================================ */
+
+.conversation-search-action {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: flex-end;
+}
+
+
+.search-related-button {
+    border: none;
+    border-radius: 10px;
+    padding: 11px 18px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    background: #111827;
+    color: #ffffff;
+
+    transition:
+            transform 0.15s ease,
+            opacity 0.15s ease,
+            box-shadow 0.15s ease;
+}
+
+
+.search-related-button:hover {
+
+    opacity: 0.92;
+
+    transform:
+            translateY(-1px);
+
+    box-shadow:
+            0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+
+.search-related-button:active {
+
+    transform:
+            translateY(0);
+}
+
+
+.search-related-button:focus-visible {
+
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+}

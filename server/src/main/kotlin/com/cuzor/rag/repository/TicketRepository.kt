@@ -1,5 +1,6 @@
 package com.cuzor.rag.repository
 
+import com.cuzor.rag.retrieval.LuceneStyleQueryParser
 import com.cuzor.rag.database.TicketTable
 import com.cuzor.rag.models.EmbeddingStatus
 import com.cuzor.rag.models.Ticket
@@ -273,6 +274,49 @@ object TicketRepository {
         }
     }
 
+    fun markNonCustomerTicketsAsSkipped(): Int {
+
+        return transaction {
+
+            val pendingTickets =
+                TicketTable
+                    .selectAll()
+                    .where {
+                        TicketTable.embeddingVerified eq
+                                EmbeddingStatus.PENDING.code
+                    }
+                    .map {
+                        Pair(
+                            it[TicketTable.ticketId],
+                            it[TicketTable.conversation]
+                        )
+                    }
+
+            var skippedCount = 0
+
+            pendingTickets.forEach { (ticketId, conversation) ->
+
+                if (!hasRealCustomerMessage(conversation)) {
+
+                    val updatedRows =
+                        TicketTable.update(
+                            where = {
+                                TicketTable.ticketId eq ticketId
+                            }
+                        ) {
+                            it[embeddingVerified] =
+                                EmbeddingStatus.SKIPPED.code
+                        }
+
+                    if (updatedRows > 0) {
+                        skippedCount++
+                    }
+                }
+            }
+
+            skippedCount
+        }
+    }
 
     /*
      * =========================================================
@@ -298,6 +342,8 @@ object TicketRepository {
  *
  * PENDING → SKIPPED
  */
+
+
 
     fun markEmptyTicketsAsSkipped(): Int {
 
@@ -341,6 +387,19 @@ object TicketRepository {
 
             skippedCount
         }
+    }
+
+    private fun hasRealCustomerMessage(
+        conversation: String
+    ): Boolean {
+
+        return conversation
+            .lineSequence()
+            .any { line ->
+
+                line.trim()
+                    .contains("CUSTOMER:", ignoreCase = true)
+            }
     }
 
     fun findPendingEmbeddingTickets(
@@ -412,7 +471,8 @@ object TicketRepository {
                     )
                 }
                 .filter { ticket ->
-                    ticket.messageCount > 0
+                    ticket.messageCount > 0 &&
+                            hasRealCustomerMessage(ticket.conversation)
                 }
         }
     }
@@ -442,6 +502,14 @@ object TicketRepository {
                 )
             }
 
+            val nonCustomerSkippedCount =
+                markNonCustomerTicketsAsSkipped()
+
+            if (nonCustomerSkippedCount > 0) {
+                println(
+                    "Marked $nonCustomerSkippedCount non-customer ticket(s) as SKIPPED."
+                )
+            }
             val pendingTickets =
                 findPendingEmbeddingTickets(batchSize)
 
@@ -626,9 +694,13 @@ object TicketRepository {
         query: String
     ): List<Ticket> {
 
-        println(
-            "Searching database for: $query"
-        )
+        println("===================================")
+        println("Lucene-Style Keyword Search")
+        println("Query : $query")
+        println("===================================")
+
+        val parsedQuery =
+            LuceneStyleQueryParser.parse(query)
 
         return transaction {
 
@@ -637,7 +709,6 @@ object TicketRepository {
                 .map {
 
                     Ticket(
-
                         ticketId =
                             it[TicketTable.ticketId],
 
@@ -677,11 +748,29 @@ object TicketRepository {
                         conversation =
                             it[TicketTable.conversation],
 
+                        product =
+                            it[TicketTable.product],
+
                         embeddingVerified =
                             it[TicketTable.embeddingVerified],
 
                         embeddingAttempts =
                             it[TicketTable.embeddingAttempts]
+                    )
+                }
+                .filter { ticket ->
+
+                    val searchableText =
+                        """
+                    ${ticket.title}
+                    ${ticket.description}
+                    ${ticket.resolution}
+                    ${ticket.conversation}
+                    """.trimIndent()
+
+                    LuceneStyleQueryParser.matches(
+                        parsedQuery,
+                        searchableText
                     )
                 }
         }

@@ -14,7 +14,7 @@ database:
   password: 140193
 
 csv:
-  path: 'C:\Users\ASUS\Downloads\live-tickets-july-2026-rag.csv'
+  path: 'C:\Users\ASUS\Downloads\live-tickets-aug-to-aug-2025-26-rag.csv'
 
 embedding:
   model: BAAI/bge-m3

@@ -3,7 +3,7 @@ package com.cuzor.rag.services
 import com.cuzor.rag.csv.CsvReader
 import com.cuzor.rag.repository.EmbeddingRepository
 import com.cuzor.rag.repository.TicketRepository
-
+import kotlinx.coroutines.*
 class TicketImportService {
 
     suspend fun importCsv(
@@ -27,74 +27,51 @@ class TicketImportService {
         var embeddingsAlreadyExist = 0
 
         // 2. Process every ticket
+        var failedTickets = 0
+
         for (ticket in tickets) {
 
-            println("-----------------------------------")
-            println(
-                "Processing Ticket : ${ticket.ticketId}"
-            )
+            try {
 
-            val ticketExists =
-                TicketRepository.exists(
-                    ticket.ticketId
-                )
+                println("-----------------------------------")
+                println("Processing Ticket : ${ticket.ticketId}")
 
-            val embeddingExists =
-                EmbeddingRepository.exists(
-                    ticket.ticketId
-                )
+                val ticketExists = TicketRepository.exists(ticket.ticketId)
+                val embeddingExists = EmbeddingRepository.exists(ticket.ticketId)
 
-            // =====================================
-            // CASE 1
-            // Ticket already exists
-            // =====================================
+                if (ticketExists) {
 
-            if (ticketExists) {
+                    println("Ticket already exists : ${ticket.ticketId}")
+                    existingTickets++
 
-                println(
-                    "Ticket already exists : ${ticket.ticketId}"
-                )
+                    if (embeddingExists) {
+                        println("Embedding already exists : ${ticket.ticketId}")
+                        embeddingsAlreadyExist++
+                    }
 
-                existingTickets++
-
-                if (embeddingExists) {
-
-                    println(
-                        "Embedding already exists : ${ticket.ticketId}"
-                    )
-
-                    embeddingsAlreadyExist++
+                    continue
                 }
 
-                continue
+                println("New ticket found : ${ticket.ticketId}")
+
+                TicketRepository.save(ticket)
+
+                newTickets++
+
+                println("Ticket saved : ${ticket.ticketId}")
+
+            } catch (e: Exception) {
+
+                failedTickets++
+
+                println("===================================")
+                println("TICKET IMPORT FAILED")
+                println("Ticket ID : ${ticket.ticketId}")
+                println("Error     : ${e.message}")
+                println("===================================")
+
+                // Continue with the next ticket.
             }
-
-            // =====================================
-            // CASE 2
-            // New ticket
-            // =====================================
-
-            println(
-                "New ticket found : ${ticket.ticketId}"
-            )
-
-            /*
-             * TicketRepository.save()
-             * automatically sets:
-             *
-             * embedding_verified = 0
-             *
-             * This means the ticket is waiting
-             * for the background embedding worker.
-             */
-            TicketRepository.save(ticket)
-
-            newTickets++
-
-            println(
-                "Ticket saved with embedding_verified = 0 : " +
-                        ticket.ticketId
-            )
         }
 
         println("===================================")

@@ -52,4 +52,13 @@ class AppConfig(application: Application) {
             .property("embedding.worker.batchSize")
             .getString()
             .toInt()
+
+    // ==========================================
+// CSV CONFIGURATION
+// ==========================================
+
+    val csvPath =
+        application.environment.config
+            .property("csv.path")
+            .getString()
 }

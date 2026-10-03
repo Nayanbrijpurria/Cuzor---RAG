@@ -1,5 +1,6 @@
 package com.cuzor.rag.routes
 
+import com.cuzor.rag.retrieval.LuceneStyleQueryParser
 import com.cuzor.rag.models.SearchRequest
 import com.cuzor.rag.retrieval.RetrievalService
 import com.cuzor.rag.repository.TicketRepository
