@@ -43,6 +43,7 @@ object TicketRepository {
 
             transaction {
 
+
                 TicketTable.insert {
 
                     it[ticketId] = ticket.ticketId
@@ -80,6 +81,7 @@ object TicketRepository {
                     it[embeddingAttempts] = 0
                 }
             }
+
 
         } catch (e: Exception) {
 
@@ -510,6 +512,7 @@ object TicketRepository {
                     "Marked $nonCustomerSkippedCount non-customer ticket(s) as SKIPPED."
                 )
             }
+
             val pendingTickets =
                 findPendingEmbeddingTickets(batchSize)
 
@@ -566,7 +569,6 @@ object TicketRepository {
             }
         }
     }
-
 
     /*
      * =========================================================

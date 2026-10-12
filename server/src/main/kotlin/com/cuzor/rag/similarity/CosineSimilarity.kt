@@ -1,5 +1,6 @@
 package com.cuzor.rag.similarity
 // this file is currently not used, but it can be used to calculate the cosine similarity between two vectors
+
 import kotlin.math.sqrt
 
 object CosineSimilarity {
@@ -24,6 +25,7 @@ object CosineSimilarity {
             normA += vectorA[i] * vectorA[i]
 
             normB += vectorB[i] * vectorB[i]
+
         }
         return dot /
 

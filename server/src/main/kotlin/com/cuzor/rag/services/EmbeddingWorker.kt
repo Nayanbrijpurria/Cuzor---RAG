@@ -54,6 +54,8 @@ class EmbeddingWorker(
                     Dispatchers.IO
         )
 
+
+
     // Maximum number of times a ticket will be attempted.
     private val maxEmbeddingAttempts = 2
 
@@ -61,7 +63,6 @@ class EmbeddingWorker(
      * Start the background embedding worker.
      */
     fun start() {
-
         println("===================================")
         println("Starting Embedding Worker")
         println("Using Kotlin Flow")

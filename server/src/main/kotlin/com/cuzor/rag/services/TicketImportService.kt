@@ -22,6 +22,7 @@ class TicketImportService {
             "Tickets Found : ${tickets.size}"
         )
 
+
         var newTickets = 0
         var existingTickets = 0
         var embeddingsAlreadyExist = 0

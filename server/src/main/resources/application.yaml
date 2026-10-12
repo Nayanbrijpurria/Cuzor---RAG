@@ -13,8 +13,8 @@ database:
   user: postgres
   password: 140193
 
-csv:
-  path: 'C:\Users\ASUS\Downloads\live-tickets-aug-to-aug-2025-26-rag.csv'
+#csv:
+#  path: 'C:\Users\ASUS\Downloads\live-tickets-aug-to-aug-2025-26-rag.csv'
 
 embedding:
   model: BAAI/bge-m3

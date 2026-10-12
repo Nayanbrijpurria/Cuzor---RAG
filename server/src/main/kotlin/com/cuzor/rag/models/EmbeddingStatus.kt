@@ -13,6 +13,7 @@ package com.cuzor.rag.models
 
 enum class EmbeddingStatus(
     val code: Int
+
 ) {
 
     PENDING(0),

@@ -98,7 +98,7 @@ fun Route.ticketRoutes() {
             )
         }
 
-        // ==========================================
+// ==========================================
 // RETRY FAILED EMBEDDING
 // ==========================================
 
@@ -216,6 +216,7 @@ fun Route.ticketRoutes() {
 
             call.respond(tickets)
         }
+
         //-----------------------------------
         post("/analytics/products/backfill") {
 
